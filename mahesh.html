@@ -1,0 +1,1399 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ChemAI R&D Platform</title>
+  <style>
+    :root{
+      --bg:#0f141b;--surface:#141b24;--surface2:#192331;--surface3:#202c3b;
+      --text:#edf3fb;--muted:#9fb0c5;--subtle:#728398;--line:#2d3b4d;
+      --accent:#4ea1ff;--green:#31c48d;--amber:#f5b84b;--red:#ff6b6b;--violet:#a78bfa;
+      --cyan:#22d3ee;--shadow:0 18px 48px rgba(0,0,0,.28);--r:8px;--font:Inter,Segoe UI,Arial,sans-serif;
+    }
+    [data-theme="light"]{
+      --bg:#f5f7fb;--surface:#fff;--surface2:#f0f4f9;--surface3:#e8eef6;
+      --text:#182231;--muted:#526175;--subtle:#7a8798;--line:#d9e1ec;
+      --shadow:0 12px 32px rgba(22,34,51,.1);
+    }
+    *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font);font-size:13px}
+    button,input,select,textarea{font:inherit;color:inherit} button{cursor:pointer}
+    .app{min-height:100vh;height:auto;display:grid;grid-template-columns:254px 1fr;overflow:visible}
+    .side{background:var(--surface);border-right:1px solid var(--line);display:flex;flex-direction:column;min-width:0;height:100vh;overflow-y:auto;position:sticky;top:0}
+    .brand{padding:18px 16px;border-bottom:1px solid var(--line)}
+    .brand-row{display:flex;align-items:center;gap:10px}.mark{width:34px;height:34px;border-radius:8px;background:linear-gradient(135deg,var(--accent),var(--green));display:grid;place-items:center;font-weight:900;color:white}
+    .brand h1{margin:0;font-size:15px}.brand p{margin:2px 0 0;color:var(--subtle);font-size:10px;letter-spacing:1.5px;text-transform:uppercase}
+    .nav{padding:10px;overflow:auto}.nav button{width:100%;display:flex;align-items:center;gap:10px;border:0;background:transparent;color:var(--muted);padding:10px;border-radius:7px;text-align:left}
+    .nav button:hover,.nav button.active{background:var(--surface2);color:var(--text)}.nav .ico{width:22px;text-align:center}
+    .side-foot{margin-top:auto;padding:12px;border-top:1px solid var(--line);color:var(--subtle);font-size:11px}
+    .main{min-width:0;display:grid;grid-template-rows:auto 1fr;overflow-y:auto}
+    .top{height:58px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 18px;background:rgba(20,27,36,.82);backdrop-filter:blur(10px)}
+    [data-theme="light"] .top{background:rgba(255,255,255,.82)}
+    .crumb{display:flex;flex-direction:column;gap:2px}.crumb strong{font-size:15px}.crumb span{color:var(--subtle);font-size:11px}
+    .top-actions{display:flex;gap:8px;align-items:center}.content{overflow:auto;padding:18px}.view{display:none}.view.active{display:block}
+    .grid{display:grid;gap:14px}.g2{grid-template-columns:repeat(2,minmax(0,1fr))}.g3{grid-template-columns:repeat(3,minmax(0,1fr))}.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+    .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);min-width:0}
+    .card-h{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border-bottom:1px solid var(--line)}
+    .card-h h2,.card-h h3{margin:0;font-size:13px}
+    .card-b{padding:14px}
+    .section-title{font-size:20px;margin:0 0 5px}.section-sub{color:var(--muted);margin:0 0 16px}
+    .stat{padding:14px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}.stat small{color:var(--subtle);text-transform:uppercase;letter-spacing:1px}.stat b{display:block;font-size:24px;margin-top:6px}
+    .btn{border:1px solid var(--line);background:var(--surface2);border-radius:7px;padding:8px 11px;color:var(--text);display:inline-flex;gap:7px;align-items:center;justify-content:center;transition:all .15s}
+    .btn:hover{background:var(--surface3)}.primary{background:var(--accent);border-color:var(--accent);color:white}.success{background:var(--green);border-color:var(--green);color:#052018}.danger{background:var(--red);border-color:var(--red);color:white}.warn{background:var(--amber);border-color:var(--amber);color:#1a1300}
+    .small{padding:5px 8px;font-size:12px}.full{width:100%}
+    .field{display:flex;flex-direction:column;gap:6px;margin-bottom:11px}.field label{font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+    input,select,textarea{width:100%;background:var(--surface2);border:1px solid var(--line);border-radius:7px;padding:9px 10px;outline:none}
+    textarea{min-height:90px;resize:vertical;font-family:var(--font)}
+    input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(78,161,255,.12)}
+    table{width:100%;border-collapse:collapse}th,td{border-bottom:1px solid var(--line);padding:9px;text-align:left;vertical-align:top}
+    th{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;font-weight:700}
+    .badge{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:3px 8px;font-size:11px;border:1px solid var(--line);background:var(--surface2);white-space:nowrap}
+    .b-green{color:var(--green)}.b-amber{color:var(--amber)}.b-red{color:var(--red)}.b-blue{color:var(--accent)}.b-violet{color:var(--violet)}
+    .toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.split{display:flex;gap:8px}
+    .muted{color:var(--muted)}.subtle{color:var(--subtle)}.mono{font-family:Consolas,Menlo,monospace}.right{text-align:right}
+    .route-tree{padding:8px 0}.node{border:1px solid var(--line);background:var(--surface2);border-radius:7px;padding:9px 11px;margin:7px 0}
+    .node.target{border-color:rgba(78,161,255,.55);background:rgba(78,161,255,.08)}
+    .node.sm{border-color:rgba(49,196,141,.55);background:rgba(49,196,141,.08)}
+    .node.inter{border-color:rgba(167,139,250,.5);background:rgba(167,139,250,.08)}
+    .branch{border-left:1px dashed var(--line);margin-left:16px;padding-left:16px}.reaction{color:var(--muted);font-size:11px;margin:8px 0}
+    .score{height:7px;background:var(--surface3);border-radius:999px;overflow:hidden}.score div{height:100%;background:linear-gradient(90deg,var(--green),var(--accent))}
+    details{border:1px solid var(--line);border-radius:var(--r);background:var(--surface);margin-bottom:8px}
+    summary{padding:10px 12px;cursor:pointer;color:var(--text);user-select:none}
+    details .inside{padding:0 12px 12px}
+    .timeline{display:grid;gap:8px}.event{border-left:3px solid var(--accent);background:var(--surface2);padding:9px 10px;border-radius:0 7px 7px 0}
+    .toast{position:fixed;right:18px;bottom:18px;z-index:1000;background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow);border-radius:7px;padding:10px 12px;display:none;max-width:340px}
+    .toast.warn{border-color:var(--amber)}.toast.error{border-color:var(--red);color:var(--red)}.toast.success{border-color:var(--green);color:var(--green)}
+
+    /* Modal */
+    .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(4px);z-index:100;display:none;align-items:flex-start;justify-content:center;padding:40px 16px;overflow-y:auto}
+    .modal-backdrop.open{display:flex}
+    .modal{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);width:100%;max-width:760px;max-height:calc(100vh - 80px);display:flex;flex-direction:column}
+    .modal-h{padding:14px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}
+    .modal-h h3{margin:0;font-size:15px}
+    .modal-b{padding:18px;overflow-y:auto;flex:1}
+    .modal-f{padding:12px 18px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:8px}
+    .close-x{background:transparent;border:0;color:var(--muted);font-size:18px;padding:4px 8px;border-radius:6px}
+    .close-x:hover{background:var(--surface2);color:var(--text)}
+
+    /* Reagents editor table */
+    .reagent-row{display:grid;grid-template-columns:2fr 1.4fr .8fr .8fr .8fr .8fr 32px;gap:6px;align-items:center;margin-bottom:6px}
+    .reagent-row.header{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+    .reagent-row input,.reagent-row select{padding:6px 8px;font-size:12px}
+    .icon-btn{width:28px;height:28px;border-radius:6px;border:1px solid var(--line);background:var(--surface2);display:grid;place-items:center;padding:0}
+    .icon-btn:hover{background:var(--surface3)}
+    .icon-btn.danger:hover{background:var(--red);color:white;border-color:var(--red)}
+    .icon-btn.success:hover{background:var(--green);color:white;border-color:var(--green)}
+
+    /* Audit chip */
+    .audit-row{display:flex;gap:8px;font-size:11px;color:var(--muted);padding:4px 0;border-bottom:1px dashed var(--line)}
+    .audit-row:last-child{border-bottom:0}
+
+    /* Tabs in modal */
+    .tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);margin-bottom:14px}
+    .tab{padding:8px 14px;background:transparent;border:0;color:var(--muted);border-bottom:2px solid transparent;cursor:pointer;font-size:12px}
+    .tab.active{color:var(--text);border-bottom-color:var(--accent)}
+    .tab-panel{display:none}.tab-panel.active{display:block}
+
+    /* Search box */
+    .search-box{position:relative;flex:1;max-width:280px}
+    .search-box input{padding-left:32px}
+    .search-box::before{content:"⌕";position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--subtle)}
+
+    @media(max-width:980px){
+      .app{grid-template-columns:1fr}.side{display:none}.g2,.g3,.g4{grid-template-columns:1fr}
+      .top{height:auto;min-height:58px;align-items:flex-start;padding:12px}.content{padding:12px}
+      .reagent-row{grid-template-columns:1fr 1fr;}
+    }
+    @media print{.side,.top,.no-print{display:none!important}.app,.main{display:block;height:auto}.content{padding:0}.view{display:block}.card{box-shadow:none;break-inside:avoid}}
+  </style>
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <div class="brand"><div class="brand-row"><div class="mark">C</div><div><h1>ChemAI R&D</h1><p>Pharma chemistry platform</p></div></div></div>
+    <nav class="nav" id="nav"></nav>
+    <div class="side-foot">
+      <div>Storage: browser local database</div>
+      <div>Ready for SQLite/PostgreSQL migration</div>
+    </div>
+  </aside>
+  <main class="main">
+    <header class="top">
+      <div class="crumb"><strong id="page-title">Dashboard</strong><span id="page-sub">Portfolio, experiments, routes, and inventory</span></div>
+      <div class="top-actions no-print">
+        <button class="btn small" id="themeBtn">◐ Theme</button>
+        <button class="btn small" onclick="App.exportBackup()">⇩ Backup JSON</button>
+        <button class="btn small primary" onclick="App.quickNewExperiment()">＋ Experiment</button>
+      </div>
+    </header>
+    <section class="content" id="views"></section>
+  </main>
+</div>
+<div class="toast" id="toast"></div>
+
+<!-- Generic Modal -->
+<div class="modal-backdrop" id="modal">
+  <div class="modal">
+    <div class="modal-h"><h3 id="modal-title">Edit</h3><button class="close-x" onclick="Modal.close()">✕</button></div>
+    <div class="modal-b" id="modal-body"></div>
+    <div class="modal-f" id="modal-foot"></div>
+  </div>
+</div>
+
+<!-- Confirm Modal -->
+<div class="modal-backdrop" id="confirm">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-h"><h3 id="confirm-title">Confirm</h3><button class="close-x" onclick="Modal.closeConfirm()">✕</button></div>
+    <div class="modal-b" id="confirm-body"></div>
+    <div class="modal-f">
+      <button class="btn" onclick="Modal.closeConfirm()">Cancel</button>
+      <button class="btn danger" id="confirm-ok">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  "use strict";
+
+  const VERSION = "2.1.0-rd";
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+  const uid = (p) => `${p}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2,7)}`;
+  const today = () => new Date().toISOString().slice(0,10);
+  const now = () => new Date().toISOString();
+  const num = (v) => Number.isFinite(+v) ? +v : 0;
+  const money = (v) => "$" + num(v).toLocaleString(undefined,{maximumFractionDigits:0});
+  const clone = (v) => JSON.parse(JSON.stringify(v));
+  const safeId = (s) => String(s||"").trim().replace(/\s+/g,"-").toUpperCase();
+
+  const NAV = [
+    ["dashboard","▦","Dashboard","Portfolio overview"],
+    ["projects","◎","Projects","Programs, compounds, milestones"],
+    ["retro","⇄","Retrosynthesis","Route tree planning"],
+    ["eln","▤","ELN","Experiments and notebook pages"],
+    ["inventory","▥","Inventory","Chemicals, vendors, stock"],
+    ["tools","⚗","Chemistry Tools","Prediction and search hooks"],
+    ["analytical","⌁","Analytical","NMR, LCMS, impurities"],
+    ["references","◫","Literature","References and reaction database"],
+    ["architecture","⌘","Architecture","Data model and deployment"]
+  ];
+
+  const Seed = {
+    projects: [
+      {id:"PRJ-001", name:"Kinase inhibitor lead optimization", client:"Internal", stage:"MedChem", owner:"Dr. Rao", status:"Active", target:"JAK/BTK series", due:"2026-08-30", createdAt:now(), updatedAt:now()},
+      {id:"PRJ-002", name:"Aspirin process robustness", client:"CRO demo", stage:"Process", owner:"Process Chemistry", status:"Active", target:"ASA", due:"2026-07-15", createdAt:now(), updatedAt:now()}
+    ],
+    inventory: [
+      {id:"INV-001", type:"Reagent", name:"Salicylic acid", cas:"69-72-7", mw:138.12, vendor:"Sigma-Aldrich", catalog:"S5922", location:"R1-A2", qty:250, unit:"g", min:50, expiry:"2028-01-31", barcode:"INV-001", notes:""},
+      {id:"INV-002", type:"Reagent", name:"Acetic anhydride", cas:"108-24-7", mw:102.09, vendor:"TCI", catalog:"A0054", location:"Flammables-F2", qty:80, unit:"mL", min:100, expiry:"2027-05-15", barcode:"INV-002", notes:""},
+      {id:"INV-003", type:"Solvent", name:"Ethyl acetate", cas:"141-78-6", mw:88.11, vendor:"Fisher", catalog:"E195", location:"Solv-03", qty:4, unit:"L", min:2, expiry:"2027-11-01", barcode:"INV-003", notes:""},
+      {id:"INV-004", type:"Consumable", name:"Silica TLC plates", cas:"", mw:"", vendor:"Merck", catalog:"105554", location:"Consumables-B1", qty:20, unit:"packs", min:5, expiry:"2029-01-01", barcode:"INV-004", notes:""}
+    ],
+    vendors: [
+      {id:uid("VND").toUpperCase(), name:"Sigma-Aldrich", quality:"Qualified", lead:"3-5 days", contact:"orders@example.com", website:""},
+      {id:uid("VND").toUpperCase(), name:"TCI", quality:"Qualified", lead:"5-7 days", contact:"procurement@example.com", website:""},
+      {id:uid("VND").toUpperCase(), name:"Fisher", quality:"Preferred", lead:"2-4 days", contact:"supply@example.com", website:""}
+    ],
+    experiments: [
+      {
+        id:"EXP-2026-0001", projectId:"PRJ-002", title:"ASA acetylation screening", scientist:"A. Chemist", status:"In review", date:today(),
+        batch:"ASA-260623-A01", target:"Aspirin", targetSmiles:"CC(=O)Oc1ccccc1C(=O)O", scale:10, conditions:{temperature:"40-80 C", solvent:"neat", atmosphere:"N2", time:"2 h"},
+        reagents:[
+          {name:"Salicylic acid", role:"Starting material", equiv:1, mw:138.12, mass:10, mmol:72.4, lot:"L12345"},
+          {name:"Acetic anhydride", role:"Reagent", equiv:1.5, mw:102.09, mass:11.1, mmol:108.6, lot:"L67890"}
+        ],
+        observations:["Charge salicylic acid and acetic anhydride under N2.","Exotherm to 42 C after acid addition."],
+        tlc:[{time:"30 min", solvent:"EtOAc/hexane 1:1", rfSm:0.22, rfProduct:0.51, note:"SM nearly consumed"}],
+        workup:"Quench into ice water, age, filter, wash with cold water.",
+        analytical:{nmr:"1H NMR consistent with aspirin reference.", lcms:"m/z 181.1 [M+H]+", impurities:"Trace salicylic acid by HPLC.", hplc:"99.2% purity"},
+        yield:{theoretical:13.04, actual:11.6, unit:"g", purity:99.2},
+        safetyHazards:["Acetic anhydride is corrosive","Use in fume hood"],
+        references:"Org. Synth. aspirin prep; in-house notebook 2025-04",
+        audit:[{at:new Date().toISOString(), by:"A. Chemist", action:"Created seed notebook page"}],
+        signatures:[{by:"A. Chemist", role:"Scientist", at:new Date().toISOString(), meaning:"Authored"}],
+        createdAt:now(), updatedAt:now()
+      }
+    ],
+    routePlans: [],
+    reactions: [
+      {id:uid("RXN").toUpperCase(), name:"O-acetylation", class:"Acyl substitution", conditions:"Ac2O, catalytic acid, 40-80 C", confidence:.88, refs:"Org. Synth. aspirin preparations", category:"Esterification"},
+      {id:uid("RXN").toUpperCase(), name:"Amide coupling", class:"Condensation", conditions:"HATU or EDC, base, DMF", confidence:.76, refs:"MedChem standard practice", category:"Amide formation"},
+      {id:uid("RXN").toUpperCase(), name:"Suzuki coupling", class:"C-C coupling", conditions:"ArBr + boronic acid, Pd, base", confidence:.82, refs:"Cross-coupling literature", category:"Cross-coupling"}
+    ],
+    references: [
+      {id:uid("REF").toUpperCase(), title:"Practical retrosynthesis for process route design", source:"Internal knowledge base", year:2026, tags:"route selection, process chemistry", doi:"", url:""},
+      {id:uid("REF").toUpperCase(), title:"Aspirin process development notes", source:"Demo ELN", year:2026, tags:"acetylation, impurity control", doi:"", url:""}
+    ],
+    audit: []
+  };
+
+  const Store = {
+    key:"chemai.rd.platform.v3",
+    data:null,
+    load(){
+      const raw = localStorage.getItem(this.key);
+      this.data = raw ? JSON.parse(raw) : clone(Seed);
+      this.data.meta ||= {version:VERSION, createdAt:new Date().toISOString()};
+      this.save();
+    },
+    save(){ localStorage.setItem(this.key, JSON.stringify(this.data)); },
+    reset(){ this.data = clone(Seed); this.save(); App.render(); App.toast("Demo data restored","success"); },
+
+    add(kind, row){
+      if(!this.data[kind]) this.data[kind] = [];
+      this.data[kind].unshift(row);
+      this.save();
+    },
+    update(kind, id, patch){
+      const list = this.data[kind] || [];
+      const idx = list.findIndex(x => x.id === id);
+      if(idx >= 0){
+        list[idx] = { ...list[idx], ...patch, updatedAt: now() };
+        this.save();
+        return list[idx];
+      }
+      return null;
+    },
+    remove(kind, id){
+      if(!this.data[kind]) return;
+      this.data[kind] = this.data[kind].filter(x => x.id !== id);
+      this.save();
+    },
+    find(kind, id){ return (this.data[kind]||[]).find(x => x.id === id); },
+    exists(kind, id, excludeId=null){
+      return (this.data[kind]||[]).some(x => x.id === id && x.id !== excludeId);
+    }
+  };
+
+  /* ===================== Modal System ===================== */
+  const Modal = {
+    open(title, body, footer){
+      $("modal-title").textContent = title;
+      $("modal-body").innerHTML = body;
+      $("modal-foot").innerHTML = footer || `<button class="btn" onclick="Modal.close()">Close</button>`;
+      $("modal").classList.add("open");
+    },
+    close(){ $("modal").classList.remove("open"); $("modal-body").innerHTML=""; $("modal-foot").innerHTML=""; },
+    confirm(title, message, onOk){
+      $("confirm-title").textContent = title;
+      $("confirm-body").innerHTML = `<p>${esc(message)}</p>`;
+      $("confirm-ok").onclick = () => { this.closeConfirm(); onOk(); };
+      $("confirm").classList.add("open");
+    },
+    closeConfirm(){ $("confirm").classList.remove("open"); }
+  };
+  document.addEventListener("keydown", e => {
+    if(e.key === "Escape"){ Modal.close(); Modal.closeConfirm(); }
+  });
+  $("modal").addEventListener("click", e => { if(e.target.id === "modal") Modal.close(); });
+  $("confirm").addEventListener("click", e => { if(e.target.id === "confirm") Modal.closeConfirm(); });
+
+  /* ===================== Chemistry ===================== */
+  const Chemistry = {
+    endpoints:{ rdkit:"", retro:"/retro", askcos:"" },
+    mwFromFormula(formula){
+      const mass = {C:12.011,H:1.008,N:14.007,O:15.999,S:32.06,P:30.974,F:18.998,Cl:35.45,Br:79.904,I:126.904};
+      let total = 0; String(formula||"").replace(/([A-Z][a-z]?)(\d*)/g, (_,el,n) => { total += (mass[el]||0) * (n ? +n : 1); });
+      return total ? +total.toFixed(2) : "";
+    },
+    props(smiles){
+      const s = smiles || "";
+      const heavy = (s.match(/[CONSPFIBrcnosp]/g)||[]).length;
+      return {
+        mw: Math.max(heavy * 13.7, 46).toFixed(1),
+        logp: (Math.min(5.8, Math.max(-1.2, (s.match(/c/g)||[]).length*.35 + (s.match(/C/g)||[]).length*.12 - (s.match(/[NO]/g)||[]).length*.28))).toFixed(2),
+        tpsa: Math.round((s.match(/[NO]/g)||[]).length * 18.5),
+        hbd: (s.match(/[nNO]H?|O/g)||[]).length > 2 ? 2 : (s.match(/[NO]/g)||[]).length,
+        hba: (s.match(/[NO]/g)||[]).length,
+        rotb: (s.match(/CC/g)||[]).length
+      };
+    },
+    reactionPrediction(reactants, type){
+      const r = reactants.join(".");
+      if(r.includes("CC(=O)OC(C)=O") && r.includes("O=C(O)c1ccccc1O")) return {name:"Aspirin", smiles:"CC(=O)Oc1ccccc1C(=O)O", confidence:91, mechanism:"O-acetylation"};
+      if(type && type.includes("amide")) return {name:"Amide product", smiles:"R-C(=O)N-R", confidence:72, mechanism:"amide coupling"};
+      return {name:"Predicted product", smiles:"Backend RDKit/RXN adapter required", confidence:55, mechanism:"rule/database hook"};
+    },
+    reagentRecommendation(goal){
+      const g = (goal||"").toLowerCase();
+      if(g.includes("amide")) return ["HATU + DIPEA", "EDC/HOBt", "Acid chloride + base"];
+      if(g.includes("ester") || g.includes("acetyl")) return ["Acetic anhydride + catalytic acid", "Acetyl chloride + pyridine", "DCC/DMAP"];
+      if(g.includes("suzuki")) return ["Pd(dppf)Cl2", "K3PO4", "1,4-dioxane/water"];
+      return ["Connect reagent recommendation model", "Search reaction database", "Use project-specific approved reagents"];
+    },
+    stoichiometry(mass, mw, equiv=1){
+      const mmol = (num(mass) / num(mw)) * 1000;
+      return { mmol: +mmol.toFixed(2), limiting: +((num(mass) * num(equiv)) / num(mw) * 1000).toFixed(2) };
+    }
+  };
+
+  /* ===================== Retrosynthesis ===================== */
+  const Retrosynthesis = {
+    adapters:{
+      async aizynth(payload){
+        const ep = $("retro-aiz-url")?.value || Chemistry.endpoints.retro;
+        return this.post(ep, payload);
+      },
+      async askcos(payload){
+        const ep = $("retro-askcos-url")?.value || Chemistry.endpoints.askcos;
+        if(!ep) throw new Error("ASKCOS endpoint not configured");
+        return this.post(ep, payload);
+      },
+      async post(ep, payload){
+        const isRelative = ep && !/^https?:\/\//i.test(ep);
+        if(location.protocol === "file:" && isRelative){
+          throw new Error("Local server not running for " + ep);
+        }
+        const r = await fetch(ep, {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
+        const data = await r.json().catch(() => ({}));
+        if(!r.ok) throw new Error(data.error || `Endpoint HTTP ${r.status}`);
+        return data;
+      }
+    },
+    normalize(data, target){
+      const paths = data.routes || data.pathways || [];
+      return paths.map((route, i) => {
+        const tree = route.tree || this.stepsToTree(target, route.steps || []);
+        const metrics = this.metrics(route, tree);
+        return {id:route.id || uid("ROUTE"), label:route.label || `Route ${i+1}`, source:data.source || route.source || "AiZynthFinder/route adapter", tree, steps:route.steps || [], metrics, score:this.rank(metrics), note:route.note || ""};
+      }).sort((a,b) => b.score - a.score);
+    },
+    stepsToTree(target, steps){
+      let node = {name:target.name, smiles:target.smiles, type:"target", children:[]};
+      let current = node;
+      steps.forEach((s, idx) => {
+        current.reaction = {name:s.reaction || "Disconnection", confidence:s.confidence ?? .7, cost:s.cost ?? 2};
+        current.children = (s.precursors || []).map((p,j) => ({name:p.name || `Precursor ${idx+1}.${j+1}`, smiles:p.smiles || "", type:p.sm ? "starting-material" : "intermediate", availability:p.availability ?? (p.sm ? .9 : .4), cost:p.cost ?? 2, children:[]}));
+        current = current.children.find(c => c.type === "intermediate") || current.children[0] || current;
+      });
+      return node;
+    },
+    metrics(route, tree){
+      const nodes = [];
+      const walk = (n, depth=0) => { nodes.push({...n, depth}); (n.children||[]).forEach(c => walk(c, depth+1)); };
+      walk(tree);
+      const reactions = nodes.filter(n => n.reaction);
+      const sms = nodes.filter(n => n.type === "starting-material" || n.availability > .75);
+      const stepCount = route.stepCount ?? (reactions.length || Math.max(1, (route.steps||[]).length));
+      const commercialAvailability = sms.length / Math.max(1, nodes.length - 1);
+      const confidence = reactions.reduce((a,n)=>a + num(n.reaction.confidence),0) / Math.max(1,reactions.length);
+      const estimatedCost = route.estimatedCost ?? nodes.reduce((a,n)=>a + num(n.cost),0) * 120;
+      const complexity = route.complexity ?? Math.min(1, (nodes.length + stepCount*2) / 18);
+      const convergence = Math.min(1, Math.max(...nodes.map(n => (n.children||[]).length), 1) / 3);
+      return {stepCount, commercialAvailability, confidence, estimatedCost, complexity, convergence};
+    },
+    rank(m){
+      const stepScore = Math.max(0, 1 - (m.stepCount - 1) / 8);
+      const costScore = Math.max(0, 1 - m.estimatedCost / 3000);
+      const complexityScore = 1 - m.complexity;
+      return Math.round(100 * (.24*stepScore + .22*m.commercialAvailability + .2*m.confidence + .14*costScore + .1*complexityScore + .1*m.convergence));
+    },
+    demoRoutes(target){
+      const key = (target.name + " " + target.smiles).toLowerCase();
+      const libraries = {
+        aspirin: [
+          {label:"Acetic anhydride process route", estimatedCost:620, steps:[{reaction:"O-acetylation, Ac2O, catalytic acid", confidence:.9, precursors:[{name:"Salicylic acid",smiles:"O=C(O)c1ccccc1O",sm:true,availability:.95,cost:1.5},{name:"Acetic anhydride",smiles:"CC(=O)OC(C)=O",sm:true,availability:.88,cost:1.2}]}]},
+          {label:"Acetyl chloride route", estimatedCost:910, steps:[{reaction:"O-acetylation, acetyl chloride, pyridine", confidence:.82, precursors:[{name:"Salicylic acid",smiles:"O=C(O)c1ccccc1O",sm:true,availability:.95,cost:1.5},{name:"Acetyl chloride",smiles:"CC(=O)Cl",sm:true,availability:.75,cost:2.4}]}]},
+          {label:"Convergent phenol route", estimatedCost:1450, steps:[{reaction:"O-acetylation", confidence:.88, precursors:[{name:"Salicylic acid",smiles:"O=C(O)c1ccccc1O",sm:false,availability:.55,cost:2.2},{name:"Acetic anhydride",smiles:"CC(=O)OC(C)=O",sm:true,availability:.88,cost:1.2}]},{reaction:"Kolbe-Schmitt carboxylation", confidence:.72, precursors:[{name:"Phenol",smiles:"Oc1ccccc1",sm:true,availability:.91,cost:1.1},{name:"Carbon dioxide",smiles:"O=C=O",sm:true,availability:.99,cost:.2}]}]}
+        ],
+        paracetamol: [
+          {label:"4-aminophenol acetylation route", estimatedCost:540, steps:[{reaction:"N-acetylation, Ac2O, water/acetic acid", confidence:.91, precursors:[{name:"4-Aminophenol",smiles:"Nc1ccc(O)cc1",sm:true,availability:.9,cost:1.4},{name:"Acetic anhydride",smiles:"CC(=O)OC(C)=O",sm:true,availability:.88,cost:1.2}]}]},
+          {label:"p-nitrophenol reduction-acetylation route", estimatedCost:980, steps:[{reaction:"N-acetylation, Ac2O", confidence:.9, precursors:[{name:"4-Aminophenol",smiles:"Nc1ccc(O)cc1",sm:false,availability:.5,cost:2.0},{name:"Acetic anhydride",smiles:"CC(=O)OC(C)=O",sm:true,availability:.88,cost:1.2}]},{reaction:"Catalytic hydrogenation or Fe/HCl reduction", confidence:.78, precursors:[{name:"4-Nitrophenol",smiles:"O=[N+]([O-])c1ccc(O)cc1",sm:true,availability:.82,cost:1.8}]}]},
+          {label:"Phenol nitration route", estimatedCost:1520, steps:[{reaction:"N-acetylation", confidence:.9, precursors:[{name:"4-Aminophenol",smiles:"Nc1ccc(O)cc1",sm:false,availability:.5,cost:2.0},{name:"Acetic anhydride",smiles:"CC(=O)OC(C)=O",sm:true,availability:.88,cost:1.2}]},{reaction:"Reduction of p-nitrophenol", confidence:.76, precursors:[{name:"4-Nitrophenol",smiles:"O=[N+]([O-])c1ccc(O)cc1",sm:false,availability:.62,cost:2.1}]},{reaction:"Controlled nitration/isomer separation", confidence:.55, precursors:[{name:"Phenol",smiles:"Oc1ccccc1",sm:true,availability:.91,cost:1.1},{name:"Nitric acid",smiles:"O[N+]([O-])=O",sm:true,availability:.86,cost:.8}]}]}
+        ],
+        nitrobenzene: [
+          {label:"Direct benzene nitration route", estimatedCost:430, steps:[{reaction:"Electrophilic aromatic nitration, HNO3/H2SO4, temperature controlled", confidence:.93, precursors:[{name:"Benzene",smiles:"c1ccccc1",sm:true,availability:.95,cost:1.0},{name:"Nitric acid",smiles:"O[N+]([O-])=O",sm:true,availability:.9,cost:.7},{name:"Sulfuric acid",smiles:"OS(=O)(=O)O",sm:true,availability:.92,cost:.6}]}]},
+          {label:"Sodium benzenesulfonate displacement route", estimatedCost:1220, steps:[{reaction:"Ipso nitration / nitro-de-sulfonation under forcing acidic conditions", confidence:.58, precursors:[{name:"Sodium benzenesulfonate",smiles:"O=S(=O)([O-])c1ccccc1.[Na+]",sm:false,availability:.55,cost:2.5},{name:"Nitric acid",smiles:"O[N+]([O-])=O",sm:true,availability:.9,cost:.7}]},{reaction:"Benzene sulfonation and neutralization", confidence:.7, precursors:[{name:"Benzene",smiles:"c1ccccc1",sm:true,availability:.95,cost:1.0},{name:"Sulfur trioxide / sulfuric acid",smiles:"OS(=O)(=O)O",sm:true,availability:.92,cost:.6},{name:"Sodium hydroxide",smiles:"[Na+].[OH-]",sm:true,availability:.96,cost:.4}]}]},
+          {label:"Aniline diazotization replacement route", estimatedCost:1660, steps:[{reaction:"Diazotization followed by nitro replacement chemistry", confidence:.42, precursors:[{name:"Aniline",smiles:"Nc1ccccc1",sm:true,availability:.82,cost:1.6},{name:"Nitrite source",smiles:"N(=O)[O-]",sm:true,availability:.78,cost:.9},{name:"Copper/nitrite reagent system",smiles:"",sm:true,availability:.55,cost:2.8}]}]}
+        ]
+      };
+      const routes = /aspirin|acetylsalicylic|cc\(=o\)oc1ccccc1c\(=o\)o/i.test(key) ? libraries.aspirin :
+        /paracetamol|acetaminophen|apap|cc\(=o\)nc1ccc\(o\)cc1|cc\(=o\)nc1=cc=c\(o\)c=c1/i.test(key) ? libraries.paracetamol :
+        /nitrobenzene|o=\[n\+\]\(\[o-\]\)c1ccccc1|c1ccc\(cc1\)\[n\+\]\(=o\)\[o-\]/i.test(key) ? libraries.nitrobenzene : [];
+      return routes.length ? this.normalize({source:"offline curated route-tree library", pathways:routes}, target) : [];
+    },
+    async plan(){
+      const target = {name:$("retro-name").value.trim() || "Target", smiles:$("retro-smiles").value.trim()};
+      if(!target.smiles) return App.toast("Enter target SMILES","warn");
+      const engine = $("retro-engine").value;
+      $("retro-output").innerHTML = `<div class="muted">Planning route tree with ${esc(engine)}...</div>`;
+      try{
+        let raw;
+        if(engine === "AiZynthFinder") raw = await this.adapters.aizynth({smiles:target.smiles,name:target.name,maxSteps:+$("retro-steps").value,pathways:+$("retro-paths").value});
+        else if(engine === "ASKCOS") raw = await this.adapters.askcos({smiles:target.smiles,name:target.name,max_depth:+$("retro-steps").value,max_trees:+$("retro-paths").value});
+        else raw = {source:"route-tree demo library", pathways:this.demoRoutes(target).map(r => ({label:r.label, tree:r.tree, note:r.note}))};
+        let routes = engine === "Demo route trees" ? this.demoRoutes(target) : this.normalize(raw, target);
+        if(!routes.length) throw new Error("No route trees returned by selected engine");
+        const plan = {id:uid("RP"), target, engine, warning:"", createdAt:new Date().toISOString(), updatedAt:new Date().toISOString(), routes};
+        Store.add("routePlans", plan);
+        App.addAudit(`Retrosynthesis planned for ${target.name}`, "Retro");
+        this.render(plan);
+        App.renderDashboardStats();
+      }catch(e){
+        const routes = this.demoRoutes(target);
+        if(routes.length){
+          const plan = {id:uid("RP"), target, engine:"Offline route-tree library", warning:`${engine} unavailable: ${e.message}. Displaying curated route-tree data, not heuristic retrosynthesis.`, createdAt:new Date().toISOString(), updatedAt:new Date().toISOString(), routes};
+          Store.add("routePlans", plan);
+          this.render(plan);
+          App.renderDashboardStats();
+          return;
+        }
+        $("retro-output").innerHTML = `<div class="badge b-red">Planning failed: ${esc(e.message)}</div><p class="muted">Open the app through the Flask server for AiZynthFinder, or select a target available in the curated route-tree library.</p>`;
+      }
+    },
+    render(plan = Store.data.routePlans[0]){
+      if(!plan){ $("retro-output").innerHTML = `<div class="muted">No route plan yet.</div>`; return; }
+      const [best, ...alts] = plan.routes;
+      $("retro-output").innerHTML = `
+        ${plan.warning ? `<div class="badge b-amber" style="margin-bottom:10px">${esc(plan.warning)}</div>` : ""}
+        <div class="grid g3">
+          ${metric("Best score", best.score + "/100", "b-blue")}
+          ${metric("Steps", best.metrics.stepCount, "b-green")}
+          ${metric("Est. cost", money(best.metrics.estimatedCost), "b-amber")}
+        </div>
+        <div class="card" style="margin-top:14px"><div class="card-h"><h3>Best Ranked Route: ${esc(best.label)}</h3><div class="toolbar"><button class="btn small" onclick="App.printRoute('${plan.id}','${best.id}')">Export PDF</button><button class="btn small warn" onclick="App.editRoute('${plan.id}','${best.id}')">✎ Edit Route</button><span class="badge b-blue">${esc(best.source)}</span></div></div><div class="card-b">${this.routeHtml(best)}</div></div>
+        <div style="margin-top:12px">${alts.map(r => `<details><summary>Alternative: ${esc(r.label)} <span class="badge">Score ${r.score}</span></summary><div class="inside">${this.routeHtml(r)}<div class="toolbar no-print" style="margin-top:8px"><button class="btn small" onclick="App.printRoute('${plan.id}','${r.id}')">Export PDF</button><button class="btn small warn" onclick="App.editRoute('${plan.id}','${r.id}')">✎ Edit Route</button></div></div></details>`).join("")}</div>`;
+    },
+    routeHtml(route){
+      const m = route.metrics;
+      return `<div class="grid g3">
+        ${mini("Commercial availability", Math.round(m.commercialAvailability*100)+"%")}
+        ${mini("Reaction confidence", Math.round(m.confidence*100)+"%")}
+        ${mini("Convergence", Math.round(m.convergence*100)+"%")}
+      </div><div class="route-tree">${this.nodeHtml(route.tree)}</div>`;
+    },
+    nodeHtml(n){
+      const cls = n.type === "target" ? "target" : n.type === "starting-material" ? "sm" : "inter";
+      return `<div class="node ${cls}"><b>${esc(n.name)}</b><div class="mono subtle">${esc(n.smiles)}</div>${n.availability ? `<span class="badge b-green">${Math.round(n.availability*100)}% available</span>` : ""}</div>
+      ${n.reaction ? `<div class="branch"><div class="reaction">⇧ ${esc(n.reaction.name)} · confidence ${Math.round(num(n.reaction.confidence)*100)}%</div>${(n.children||[]).map(c=>this.nodeHtml(c)).join("")}</div>` : ""}`;
+    }
+  };
+
+  /* ===================== ELN ===================== */
+  const ELN = {
+    newId(){
+      const yr = new Date().getFullYear();
+      const max = Store.data.experiments.reduce((m,e)=>{
+        const m2 = String(e.id||"").match(/EXP-(\d{4})-(\d+)/);
+        return m2 ? Math.max(m, +m2[2]) : m;
+      }, 0);
+      return `EXP-${yr}-${String(max+1).padStart(4,"0")}`;
+    },
+    nextBatch(){
+      return `B-${new Date().toISOString().slice(2,10).replaceAll("-","")}-${String(Store.data.experiments.length+1).padStart(2,"0")}`;
+    },
+    audit(exp, action){
+      exp.audit ||= [];
+      exp.audit.push({at:new Date().toISOString(), by:exp.scientist || "System", action});
+    },
+    sign(id){
+      const exp = Store.data.experiments.find(e=>e.id===id); if(!exp) return;
+      exp.signatures ||= [];
+      exp.signatures.push({by:prompt("Signer name","Reviewer")||"Reviewer", role:"Electronic signature", at:new Date().toISOString(), meaning:"Reviewed and approved"});
+      this.audit(exp, "Electronically signed");
+      Store.update("experiments", id, exp);
+      App.renderELN();
+      App.toast("Signature recorded","success");
+    },
+    calcYield(exp){
+      const t=num(exp.yield?.theoretical), a=num(exp.yield?.actual);
+      return t ? Math.round(a/t*1000)/10 : 0;
+    },
+    reagentTable(exp){
+      const rows = (exp.reagents||[]);
+      return `<table><thead><tr><th>Name</th><th>Role</th><th>Equiv</th><th>MW</th><th>Mass</th><th>mmol</th><th>Lot</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${esc(r.name)}</td><td>${esc(r.role)}</td><td>${r.equiv}</td><td>${esc(r.mw)}</td><td>${esc(r.mass)}</td><td>${esc(r.mmol)}</td><td class="mono">${esc(r.lot||"")}</td></tr>`).join("") || `<tr><td colspan="7" class="muted">No reagents.</td></tr>`}</tbody></table>`;
+    },
+
+    /* ---------- Edit Modal ---------- */
+    openEditor(id=null){
+      const exp = id ? clone(Store.find("experiments", id)) : {
+        id: this.newId(),
+        projectId: Store.data.projects[0]?.id || "",
+        title: "",
+        scientist: "",
+        status: "Draft",
+        date: today(),
+        batch: this.nextBatch(),
+        target: "",
+        targetSmiles: "",
+        scale: 10,
+        conditions: { temperature:"", solvent:"", atmosphere:"", time:"" },
+        reagents: [],
+        observations: [],
+        tlc: [],
+        workup: "",
+        analytical: { nmr:"", lcms:"", impurities:"", hplc:"" },
+        yield: { theoretical:0, actual:0, unit:"g", purity:0 },
+        safetyHazards: [],
+        references: "",
+        audit: [{at:now(), by:"System", action:"Experiment created"}],
+        signatures: [],
+        createdAt: now(),
+        updatedAt: now()
+      };
+      const isNew = !id;
+
+      const obs = (exp.observations||[]).map(o=>`<li class="obs-row" style="display:flex;gap:6px;margin-bottom:4px"><input class="obs" value="${esc(o)}" style="flex:1"><button type="button" class="icon-btn danger" onclick="this.parentNode.remove()">×</button></li>`).join("");
+      const hazards = (exp.safetyHazards||[]).map(h=>`<li class="haz-row" style="display:flex;gap:6px;margin-bottom:4px"><input class="haz" value="${esc(h)}" style="flex:1"><button type="button" class="icon-btn danger" onclick="this.parentNode.remove()">×</button></li>`).join("");
+      const reagents = (exp.reagents||[]).map((r,i)=>`
+        <div class="reagent-row" data-idx="${i}">
+          <input class="r-name" value="${esc(r.name)}" placeholder="Name">
+          <input class="r-role" value="${esc(r.role)}" placeholder="Role">
+          <input class="r-equiv" type="number" step="0.01" value="${esc(r.equiv)}" placeholder="Equiv">
+          <input class="r-mw" type="number" step="0.01" value="${esc(r.mw)}" placeholder="MW">
+          <input class="r-mass" type="number" step="0.01" value="${esc(r.mass)}" placeholder="Mass">
+          <input class="r-mmol" type="number" step="0.01" value="${esc(r.mmol)}" placeholder="mmol">
+          <button type="button" class="icon-btn danger" onclick="this.parentNode.remove()">×</button>
+        </div>`).join("");
+      const tlc = (exp.tlc||[]).map((t,i)=>`
+        <div class="reagent-row" data-tlc-idx="${i}">
+          <input class="t-time" value="${esc(t.time)}" placeholder="Time">
+          <input class="t-sol" value="${esc(t.solvent)}" placeholder="Solvent">
+          <input class="t-rfsm" type="number" step="0.01" value="${esc(t.rfSm)}" placeholder="RF SM">
+          <input class="t-rfp" type="number" step="0.01" value="${esc(t.rfProduct)}" placeholder="RF Prod">
+          <input class="t-note" value="${esc(t.note)}" placeholder="Note">
+          <span></span>
+          <button type="button" class="icon-btn danger" onclick="this.parentNode.remove()">×</button>
+        </div>`).join("");
+
+      const body = `
+        <div class="tabs">
+          <button class="tab active" data-tab="t1">Identity</button>
+          <button class="tab" data-tab="t2">Reagents & Stoichiometry</button>
+          <button class="tab" data-tab="t3">Observations & TLC</button>
+          <button class="tab" data-tab="t4">Analytical & Yield</button>
+          <button class="tab" data-tab="t5">Safety & Audit</button>
+        </div>
+        <form id="exp-form" onsubmit="return false">
+          <div class="tab-panel active" data-tab="t1">
+            <div class="grid g2">
+              <div class="field"><label>Experiment ID ${isNew?"(auto, editable)":"(editable)"}</label><input id="exp-id" class="mono" value="${esc(exp.id)}"></div>
+              <div class="field"><label>Project</label><select id="exp-project">${Store.data.projects.map(p=>`<option value="${p.id}" ${p.id===exp.projectId?"selected":""}>${esc(p.id)} · ${esc(p.name)}</option>`).join("")}</select></div>
+            </div>
+            <div class="grid g2">
+              <div class="field"><label>Title</label><input id="exp-title" value="${esc(exp.title)}"></div>
+              <div class="field"><label>Status</label><select id="exp-status"><option ${exp.status==="Draft"?"selected":""}>Draft</option><option ${exp.status==="In progress"?"selected":""}>In progress</option><option ${exp.status==="In review"?"selected":""}>In review</option><option ${exp.status==="Complete"?"selected":""}>Complete</option><option ${exp.status==="Cancelled"?"selected":""}>Cancelled</option></select></div>
+            </div>
+            <div class="grid g3">
+              <div class="field"><label>Scientist</label><input id="exp-scientist" value="${esc(exp.scientist)}"></div>
+              <div class="field"><label>Date</label><input id="exp-date" type="date" value="${esc(exp.date)}"></div>
+              <div class="field"><label>Batch</label><input id="exp-batch" value="${esc(exp.batch)}"></div>
+            </div>
+            <div class="grid g2">
+              <div class="field"><label>Target compound</label><input id="exp-target" value="${esc(exp.target)}"></div>
+              <div class="field"><label>Scale (mmol)</label><input id="exp-scale" type="number" step="0.01" value="${esc(exp.scale)}"></div>
+            </div>
+            <div class="field"><label>Target SMILES</label><input id="exp-smiles" class="mono" value="${esc(exp.targetSmiles)}"></div>
+            <h3 style="margin:8px 0 4px">Reaction Conditions</h3>
+            <div class="grid g2">
+              <div class="field"><label>Temperature</label><input id="exp-temp" value="${esc(exp.conditions?.temperature||"")}"></div>
+              <div class="field"><label>Solvent</label><input id="exp-solvent" value="${esc(exp.conditions?.solvent||"")}"></div>
+            </div>
+            <div class="grid g2">
+              <div class="field"><label>Atmosphere</label><input id="exp-atm" value="${esc(exp.conditions?.atmosphere||"")}"></div>
+              <div class="field"><label>Time</label><input id="exp-time" value="${esc(exp.conditions?.time||"")}"></div>
+            </div>
+          </div>
+          <div class="tab-panel" data-tab="t2">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+              <b>Reagents</b>
+              <button type="button" class="btn small" onclick="ELN.addReagentRow()">+ Add reagent</button>
+            </div>
+            <div class="reagent-row header"><span>Name</span><span>Role</span><span>Equiv</span><span>MW</span><span>Mass</span><span>mmol</span><span></span></div>
+            <div id="reagent-list">${reagents || `<div class="muted">No reagents yet.</div>`}</div>
+          </div>
+          <div class="tab-panel" data-tab="t3">
+            <h3 style="margin:0 0 4px">Observations</h3>
+            <ul id="obs-list" style="list-style:none;padding:0;margin:0 0 6px">${obs}</ul>
+            <button type="button" class="btn small" onclick="ELN.addObsRow()">+ Add observation</button>
+            <h3 style="margin:14px 0 4px">TLC Tracking</h3>
+            <div class="reagent-row header"><span>Time</span><span>Solvent</span><span>RF SM</span><span>RF Prod</span><span>Note</span><span></span><span></span></div>
+            <div id="tlc-list">${tlc || `<div class="muted">No TLC entries.</div>`}</div>
+            <button type="button" class="btn small" onclick="ELN.addTlcRow()" style="margin-top:6px">+ Add TLC entry</button>
+            <h3 style="margin:14px 0 4px">Workup</h3>
+            <textarea id="exp-workup">${esc(exp.workup||"")}</textarea>
+          </div>
+          <div class="tab-panel" data-tab="t4">
+            <div class="grid g2">
+              <div class="field"><label>NMR</label><textarea id="exp-nmr">${esc(exp.analytical?.nmr||"")}</textarea></div>
+              <div class="field"><label>LCMS</label><textarea id="exp-lcms">${esc(exp.analytical?.lcms||"")}</textarea></div>
+            </div>
+            <div class="grid g2">
+              <div class="field"><label>HPLC purity</label><input id="exp-hplc" value="${esc(exp.analytical?.hplc||"")}"></div>
+              <div class="field"><label>Impurity notes</label><textarea id="exp-imp">${esc(exp.analytical?.impurities||"")}</textarea></div>
+            </div>
+            <h3 style="margin:8px 0 4px">Yield</h3>
+            <div class="grid g4">
+              <div class="field"><label>Theoretical</label><input id="y-th" type="number" step="0.01" value="${esc(exp.yield?.theoretical||0)}"></div>
+              <div class="field"><label>Actual</label><input id="y-act" type="number" step="0.01" value="${esc(exp.yield?.actual||0)}"></div>
+              <div class="field"><label>Unit</label><input id="y-unit" value="${esc(exp.yield?.unit||"g")}"></div>
+              <div class="field"><label>Purity %</label><input id="y-pur" type="number" step="0.01" value="${esc(exp.yield?.purity||0)}"></div>
+            </div>
+            <div class="field"><label>References</label><input id="exp-refs" value="${esc(exp.references||"")}"></div>
+          </div>
+          <div class="tab-panel" data-tab="t5">
+            <h3 style="margin:0 0 4px">Safety Hazards</h3>
+            <ul id="haz-list" style="list-style:none;padding:0;margin:0 0 6px">${hazards}</ul>
+            <button type="button" class="btn small" onclick="ELN.addHazRow()">+ Add hazard</button>
+            <h3 style="margin:14px 0 4px">Audit Trail</h3>
+            <div id="audit-display" style="max-height:200px;overflow-y:auto;border:1px solid var(--line);border-radius:7px;padding:8px;background:var(--surface2)">
+              ${(exp.audit||[]).map(a=>`<div class="audit-row"><span class="subtle mono">${new Date(a.at).toLocaleString()}</span><b>${esc(a.by)}</b><span>${esc(a.action)}</span></div>`).join("") || `<div class="muted">No audit events.</div>`}
+            </div>
+            <h3 style="margin:14px 0 4px">Electronic Signatures</h3>
+            <div>${(exp.signatures||[]).map(s=>`<div class="audit-row"><span class="subtle mono">${new Date(s.at).toLocaleString()}</span><b>${esc(s.by)}</b><span>${esc(s.role)} · ${esc(s.meaning)}</span></div>`).join("") || `<div class="muted">No signatures.</div>`}</div>
+          </div>
+        </form>`;
+      const foot = `
+        <button class="btn" onclick="Modal.close()">Cancel</button>
+        <button class="btn primary" onclick="ELN.save('${exp.id}', ${isNew})">💾 Save</button>`;
+      Modal.open(isNew?"New Experiment":"Edit Experiment", body, foot);
+      Modal._editingId = exp.id;
+      Modal._isNew = isNew;
+      // Tab wiring
+      document.querySelectorAll("#modal .tab").forEach(t => t.onclick = () => {
+        document.querySelectorAll("#modal .tab").forEach(x => x.classList.remove("active"));
+        document.querySelectorAll("#modal .tab-panel").forEach(x => x.classList.remove("active"));
+        t.classList.add("active");
+        document.querySelector(`#modal .tab-panel[data-tab="${t.dataset.tab}"]`).classList.add("active");
+      });
+    },
+    addReagentRow(){
+      const wrap = $("reagent-list");
+      const ph = wrap.querySelector(".muted"); if(ph) ph.remove();
+      const div = document.createElement("div");
+      div.className = "reagent-row";
+      div.innerHTML = `<input class="r-name" placeholder="Name"><input class="r-role" placeholder="Role"><input class="r-equiv" type="number" step="0.01" placeholder="Equiv"><input class="r-mw" type="number" step="0.01" placeholder="MW"><input class="r-mass" type="number" step="0.01" placeholder="Mass"><input class="r-mmol" type="number" step="0.01" placeholder="mmol"><button type="button" class="icon-btn danger" onclick="this.parentNode.remove()">×</button>`;
+      wrap.appendChild(div);
+    },
+    addObsRow(){
+      const li = document.createElement("li");
+      li.className = "obs-row"; li.style.cssText="display:flex;gap:6px;margin-bottom:4px";
+      li.innerHTML = `<input class="obs" style="flex:1"><button type="button" class="icon-btn danger" onclick="this.parentNode.remove()">×</button>`;
+      $("obs-list").appendChild(li);
+    },
+    addHazRow(){
+      const li = document.createElement("li");
+      li.className = "haz-row"; li.style.cssText="display:flex;gap:6px;margin-bottom:4px";
+      li.innerHTML = `<input class="haz" style="flex:1"><button type="button" class="icon-btn danger" onclick="this.parentNode.remove()">×</button>`;
+      $("haz-list").appendChild(li);
+    },
+    addTlcRow(){
+      const wrap = $("tlc-list");
+      const ph = wrap.querySelector(".muted"); if(ph) ph.remove();
+      const div = document.createElement("div");
+      div.className = "reagent-row";
+      div.innerHTML = `<input class="t-time" placeholder="Time"><input class="t-sol" placeholder="Solvent"><input class="t-rfsm" type="number" step="0.01" placeholder="RF SM"><input class="t-rfp" type="number" step="0.01" placeholder="RF Prod"><input class="t-note" placeholder="Note"><span></span><button type="button" class="icon-btn danger" onclick="this.parentNode.remove()">×</button>`;
+      wrap.appendChild(div);
+    },
+    save(originalId, isNew){
+      const newId = safeId($("exp-id").value);
+      if(!newId) return App.toast("Experiment ID is required","error");
+      if(!isNew && newId !== originalId){
+        if(Store.exists("experiments", newId)) return App.toast(`Experiment ID ${newId} already exists`,"error");
+      } else if(isNew && Store.exists("experiments", newId)){
+        return App.toast(`Experiment ID ${newId} already exists`,"error");
+      }
+
+      const reagents = [...$("reagent-list").querySelectorAll(".reagent-row")].map(r => ({
+        name: r.querySelector(".r-name").value.trim(),
+        role: r.querySelector(".r-role").value.trim(),
+        equiv: num(r.querySelector(".r-equiv").value),
+        mw:   r.querySelector(".r-mw").value,
+        mass: r.querySelector(".r-mass").value,
+        mmol: r.querySelector(".r-mmol").value,
+        lot: ""
+      })).filter(r => r.name);
+
+      const tlc = [...$("tlc-list").querySelectorAll(".reagent-row")].map(t => ({
+        time: t.querySelector(".t-time").value,
+        solvent: t.querySelector(".t-sol").value,
+        rfSm: t.querySelector(".t-rfsm").value,
+        rfProduct: t.querySelector(".t-rfp").value,
+        note: t.querySelector(".t-note").value
+      })).filter(t => t.time || t.solvent);
+
+      const obs = [...$("obs-list").querySelectorAll(".obs")].map(i => i.value.trim()).filter(Boolean);
+      const hazards = [...$("haz-list").querySelectorAll(".haz")].map(i => i.value.trim()).filter(Boolean);
+
+      const patch = {
+        id: newId,
+        projectId: $("exp-project").value,
+        title: $("exp-title").value,
+        scientist: $("exp-scientist").value,
+        status: $("exp-status").value,
+        date: $("exp-date").value,
+        batch: $("exp-batch").value,
+        target: $("exp-target").value,
+        targetSmiles: $("exp-smiles").value,
+        scale: num($("exp-scale").value),
+        conditions: {
+          temperature: $("exp-temp").value,
+          solvent: $("exp-solvent").value,
+          atmosphere: $("exp-atm").value,
+          time: $("exp-time").value
+        },
+        reagents, observations: obs, tlc,
+        workup: $("exp-workup").value,
+        analytical: {
+          nmr: $("exp-nmr").value,
+          lcms: $("exp-lcms").value,
+          hplc: $("exp-hplc").value,
+          impurities: $("exp-imp").value
+        },
+        yield: {
+          theoretical: num($("y-th").value),
+          actual: num($("y-act").value),
+          unit: $("y-unit").value,
+          purity: num($("y-pur").value)
+        },
+        safetyHazards: hazards,
+        references: $("exp-refs").value,
+        updatedAt: now()
+      };
+
+      if(isNew){
+        patch.createdAt = now();
+        patch.audit = [{at:now(), by:patch.scientist||"System", action:"Experiment created"}];
+        patch.signatures = [];
+        Store.add("experiments", patch);
+        App.addAudit(`Created experiment ${patch.id}`, "ELN");
+        App.toast("Experiment created","success");
+      } else {
+        const orig = Store.find("experiments", originalId);
+        patch.audit = clone(orig?.audit || []);
+        patch.signatures = clone(orig?.signatures || []);
+        patch.createdAt = orig?.createdAt || now();
+        patch.audit.push({at:now(), by:patch.scientist||"System", action:`Experiment ${newId !== originalId ? `renamed from ${originalId} and ` : ""}updated`});
+        // If ID changed, remove old and add new
+        if(newId !== originalId){
+          Store.remove("experiments", originalId);
+        }
+        Store.update("experiments", newId, patch);
+        // If ID changed, the update above created new entry — ensure it's at top
+        if(newId !== originalId){
+          const arr = Store.data.experiments;
+          const idx = arr.findIndex(e => e.id === newId);
+          if(idx > 0){ const [it] = arr.splice(idx,1); arr.unshift(it); Store.save(); }
+        }
+        App.addAudit(`Updated experiment ${newId}`, "ELN");
+        App.toast("Experiment saved","success");
+      }
+      Modal.close();
+      App.render();
+    },
+    remove(id){
+      Modal.confirm("Delete experiment?", `Delete experiment <b>${esc(id)}</b>? This cannot be undone.`, () => {
+        Store.remove("experiments", id);
+        App.addAudit(`Deleted experiment ${id}`, "ELN");
+        App.render();
+        App.toast("Experiment deleted","success");
+      });
+    }
+  };
+
+  /* ===================== Inventory ===================== */
+  const Inventory = {
+    status(i){
+      const low = num(i.qty) <= num(i.min);
+      const exp = i.expiry && new Date(i.expiry) < new Date(Date.now()+1000*60*60*24*90);
+      return low ? ["Low stock","b-red"] : exp ? ["Expiry watch","b-amber"] : ["OK","b-green"];
+    },
+    openEditor(id=null){
+      const item = id ? clone(Store.find("inventory", id)) : {
+        id: uid("INV").toUpperCase(),
+        type:"Reagent", name:"", cas:"", mw:"", vendor:"", catalog:"", location:"",
+        qty:0, unit:"g", min:0, expiry:"", barcode:"", notes:""
+      };
+      const isNew = !id;
+      const body = `
+        <form onsubmit="return false">
+          <div class="grid g2">
+            <div class="field"><label>Item ID ${isNew?"(auto)":"(editable)"}</label><input id="inv-id" class="mono" value="${esc(item.id)}"></div>
+            <div class="field"><label>Type</label><select id="inv-type">
+              <option ${item.type==="Chemical"?"selected":""}>Chemical</option>
+              <option ${item.type==="Reagent"?"selected":""}>Reagent</option>
+              <option ${item.type==="Solvent"?"selected":""}>Solvent</option>
+              <option ${item.type==="Consumable"?"selected":""}>Consumable</option>
+              <option ${item.type==="Reference Standard"?"selected":""}>Reference Standard</option>
+              <option ${item.type==="Equipment"?"selected":""}>Equipment</option>
+            </select></div>
+          </div>
+          <div class="field"><label>Name</label><input id="inv-name" value="${esc(item.name)}"></div>
+          <div class="grid g3">
+            <div class="field"><label>CAS</label><input id="inv-cas" value="${esc(item.cas)}"></div>
+            <div class="field"><label>MW</label><input id="inv-mw" value="${esc(item.mw)}"></div>
+            <div class="field"><label>Barcode</label><input id="inv-bc" value="${esc(item.barcode)}"></div>
+          </div>
+          <div class="grid g2">
+            <div class="field"><label>Vendor</label><input id="inv-vendor" value="${esc(item.vendor)}"></div>
+            <div class="field"><label>Catalog #</label><input id="inv-catalog" value="${esc(item.catalog)}"></div>
+          </div>
+          <div class="grid g3">
+            <div class="field"><label>Location</label><input id="inv-location" value="${esc(item.location)}"></div>
+            <div class="field"><label>Quantity</label><input id="inv-qty" type="number" step="0.01" value="${esc(item.qty)}"></div>
+            <div class="field"><label>Unit</label><input id="inv-unit" value="${esc(item.unit)}"></div>
+          </div>
+          <div class="grid g2">
+            <div class="field"><label>Min. stock</label><input id="inv-min" type="number" step="0.01" value="${esc(item.min)}"></div>
+            <div class="field"><label>Expiry</label><input id="inv-expiry" type="date" value="${esc(item.expiry)}"></div>
+          </div>
+          <div class="field"><label>Notes</label><textarea id="inv-notes">${esc(item.notes||"")}</textarea></div>
+        </form>`;
+      const foot = `<button class="btn" onclick="Modal.close()">Cancel</button><button class="btn primary" onclick="Inventory.save('${item.id}', ${isNew})">💾 Save</button>`;
+      Modal.open(isNew?"Add Inventory Item":"Edit Inventory Item", body, foot);
+    },
+    save(originalId, isNew){
+      const newId = safeId($("inv-id").value);
+      if(!newId) return App.toast("Item ID is required","error");
+      if(newId !== originalId && Store.exists("inventory", newId)) return App.toast(`ID ${newId} exists`,"error");
+      const patch = {
+        id: newId,
+        type: $("inv-type").value,
+        name: $("inv-name").value,
+        cas: $("inv-cas").value,
+        mw: $("inv-mw").value,
+        barcode: $("inv-bc").value || newId,
+        vendor: $("inv-vendor").value,
+        catalog: $("inv-catalog").value,
+        location: $("inv-location").value,
+        qty: num($("inv-qty").value),
+        unit: $("inv-unit").value,
+        min: num($("inv-min").value),
+        expiry: $("inv-expiry").value,
+        notes: $("inv-notes").value
+      };
+      if(isNew){
+        Store.add("inventory", patch);
+        App.addAudit(`Added inventory item ${newId}`, "Inventory");
+      } else {
+        if(newId !== originalId){
+          Store.remove("inventory", originalId);
+        }
+        Store.update("inventory", newId, patch);
+        if(newId !== originalId){
+          const arr = Store.data.inventory;
+          const idx = arr.findIndex(e => e.id === newId);
+          if(idx > 0){ const [it] = arr.splice(idx,1); arr.unshift(it); Store.save(); }
+        }
+        App.addAudit(`Updated inventory item ${newId}`, "Inventory");
+      }
+      App.toast("Inventory saved","success");
+      Modal.close();
+      App.render();
+    },
+    remove(id){
+      Modal.confirm("Delete inventory item?", `Delete <b>${esc(id)}</b>?`, () => {
+        Store.remove("inventory", id);
+        App.addAudit(`Deleted inventory ${id}`, "Inventory");
+        App.render();
+        App.toast("Deleted","success");
+      });
+    }
+  };
+
+  /* ===================== Vendors ===================== */
+  const Vendors = {
+    openEditor(id=null){
+      const v = id ? clone(Store.find("vendors", id)) : { id: uid("VND").toUpperCase(), name:"", quality:"", lead:"", contact:"", website:"" };
+      const isNew = !id;
+      const body = `
+        <div class="grid g2">
+          <div class="field"><label>Vendor ID</label><input id="v-id" class="mono" value="${esc(v.id)}"></div>
+          <div class="field"><label>Name</label><input id="v-name" value="${esc(v.name)}"></div>
+        </div>
+        <div class="grid g2">
+          <div class="field"><label>Quality rating</label><select id="v-quality">
+            <option ${v.quality==="Preferred"?"selected":""}>Preferred</option>
+            <option ${v.quality==="Qualified"?"selected":""}>Qualified</option>
+            <option ${v.quality==="Approved"?"selected":""}>Approved</option>
+            <option ${v.quality==="Audit required"?"selected":""}>Audit required</option>
+            <option ${v.quality==="Disqualified"?"selected":""}>Disqualified</option>
+          </select></div>
+          <div class="field"><label>Lead time</label><input id="v-lead" value="${esc(v.lead)}"></div>
+        </div>
+        <div class="grid g2">
+          <div class="field"><label>Contact</label><input id="v-contact" value="${esc(v.contact)}"></div>
+          <div class="field"><label>Website</label><input id="v-web" value="${esc(v.website)}"></div>
+        </div>`;
+      const foot = `<button class="btn" onclick="Modal.close()">Cancel</button><button class="btn primary" onclick="Vendors.save('${v.id}', ${isNew})">💾 Save</button>`;
+      Modal.open(isNew?"Add Vendor":"Edit Vendor", body, foot);
+    },
+    save(originalId, isNew){
+      const newId = safeId($("v-id").value);
+      if(!newId) return App.toast("ID is required","error");
+      if(newId !== originalId && Store.exists("vendors", newId)) return App.toast("ID exists","error");
+      const patch = { id:newId, name:$("v-name").value, quality:$("v-quality").value, lead:$("v-lead").value, contact:$("v-contact").value, website:$("v-web").value };
+      if(isNew) Store.add("vendors", patch);
+      else {
+        if(newId !== originalId){ Store.remove("vendors", originalId); }
+        Store.update("vendors", newId, patch);
+        if(newId !== originalId){
+          const arr = Store.data.vendors; const i = arr.findIndex(x=>x.id===newId);
+          if(i>0){ const [it]=arr.splice(i,1); arr.unshift(it); Store.save(); }
+        }
+      }
+      App.addAudit(`${isNew?"Added":"Updated"} vendor ${newId}`,"Inventory");
+      App.toast("Vendor saved","success"); Modal.close(); App.render();
+    },
+    remove(id){ Modal.confirm("Delete vendor?", `Delete <b>${esc(id)}</b>?`, () => { Store.remove("vendors", id); App.render(); App.toast("Deleted","success"); }); }
+  };
+
+  /* ===================== Reactions ===================== */
+  const Reactions = {
+    openEditor(id=null){
+      const r = id ? clone(Store.find("reactions", id)) : { id: uid("RXN").toUpperCase(), name:"", class:"", conditions:"", confidence:0.7, refs:"", category:"" };
+      const isNew = !id;
+      const body = `
+        <div class="grid g2">
+          <div class="field"><label>Reaction ID</label><input id="r-id" class="mono" value="${esc(r.id)}"></div>
+          <div class="field"><label>Category</label><input id="r-cat" value="${esc(r.category)}" placeholder="e.g. Cross-coupling"></div>
+        </div>
+        <div class="field"><label>Name</label><input id="r-name" value="${esc(r.name)}"></div>
+        <div class="grid g2">
+          <div class="field"><label>Class</label><input id="r-class" value="${esc(r.class)}"></div>
+          <div class="field"><label>Confidence (0-1)</label><input id="r-conf" type="number" step="0.01" min="0" max="1" value="${esc(r.confidence)}"></div>
+        </div>
+        <div class="field"><label>Conditions</label><textarea id="r-cond">${esc(r.conditions)}</textarea></div>
+        <div class="field"><label>References</label><textarea id="r-refs">${esc(r.refs)}</textarea></div>`;
+      const foot = `<button class="btn" onclick="Modal.close()">Cancel</button><button class="btn primary" onclick="Reactions.save('${r.id}', ${isNew})">💾 Save</button>`;
+      Modal.open(isNew?"Add Reaction":"Edit Reaction", body, foot);
+    },
+    save(originalId, isNew){
+      const newId = safeId($("r-id").value);
+      if(!newId) return App.toast("ID is required","error");
+      if(newId !== originalId && Store.exists("reactions", newId)) return App.toast("ID exists","error");
+      const patch = { id:newId, name:$("r-name").value, class:$("r-class").value, conditions:$("r-cond").value, confidence:num($("r-conf").value), refs:$("r-refs").value, category:$("r-cat").value };
+      if(isNew) Store.add("reactions", patch);
+      else {
+        if(newId !== originalId){ Store.remove("reactions", originalId); }
+        Store.update("reactions", newId, patch);
+        if(newId !== originalId){
+          const arr = Store.data.reactions; const i = arr.findIndex(x=>x.id===newId);
+          if(i>0){ const [it]=arr.splice(i,1); arr.unshift(it); Store.save(); }
+        }
+      }
+      App.toast("Reaction saved","success"); Modal.close(); App.render();
+    },
+    remove(id){ Modal.confirm("Delete reaction?", `Delete <b>${esc(id)}</b>?`, () => { Store.remove("reactions", id); App.render(); App.toast("Deleted","success"); }); }
+  };
+
+  /* ===================== References ===================== */
+  const Refs = {
+    openEditor(id=null){
+      const r = id ? clone(Store.find("references", id)) : { id: uid("REF").toUpperCase(), title:"", source:"", year:new Date().getFullYear(), tags:"", doi:"", url:"" };
+      const isNew = !id;
+      const body = `
+        <div class="grid g2">
+          <div class="field"><label>Reference ID</label><input id="ref-id" class="mono" value="${esc(r.id)}"></div>
+          <div class="field"><label>Year</label><input id="ref-year" type="number" value="${esc(r.year)}"></div>
+        </div>
+        <div class="field"><label>Title</label><input id="ref-title" value="${esc(r.title)}"></div>
+        <div class="grid g2">
+          <div class="field"><label>Source</label><input id="ref-src" value="${esc(r.source)}"></div>
+          <div class="field"><label>DOI</label><input id="ref-doi" value="${esc(r.doi)}"></div>
+        </div>
+        <div class="field"><label>URL</label><input id="ref-url" value="${esc(r.url)}"></div>
+        <div class="field"><label>Tags</label><input id="ref-tags" value="${esc(r.tags)}" placeholder="comma-separated"></div>`;
+      const foot = `<button class="btn" onclick="Modal.close()">Cancel</button><button class="btn primary" onclick="Refs.save('${r.id}', ${isNew})">💾 Save</button>`;
+      Modal.open(isNew?"Add Reference":"Edit Reference", body, foot);
+    },
+    save(originalId, isNew){
+      const newId = safeId($("ref-id").value);
+      if(!newId) return App.toast("ID is required","error");
+      if(newId !== originalId && Store.exists("references", newId)) return App.toast("ID exists","error");
+      const patch = { id:newId, title:$("ref-title").value, source:$("ref-src").value, year:num($("ref-year").value), doi:$("ref-doi").value, url:$("ref-url").value, tags:$("ref-tags").value };
+      if(isNew) Store.add("references", patch);
+      else {
+        if(newId !== originalId){ Store.remove("references", originalId); }
+        Store.update("references", newId, patch);
+        if(newId !== originalId){
+          const arr = Store.data.references; const i = arr.findIndex(x=>x.id===newId);
+          if(i>0){ const [it]=arr.splice(i,1); arr.unshift(it); Store.save(); }
+        }
+      }
+      App.toast("Reference saved","success"); Modal.close(); App.render();
+    },
+    remove(id){ Modal.confirm("Delete reference?", `Delete <b>${esc(id)}</b>?`, () => { Store.remove("references", id); App.render(); App.toast("Deleted","success"); }); }
+  };
+
+  /* ===================== Projects ===================== */
+  const Projects = {
+    openEditor(id=null){
+      const p = id ? clone(Store.find("projects", id)) : { id: "PRJ-" + String(Store.data.projects.length+1).padStart(3,"0"), name:"", client:"", stage:"Discovery", owner:"", status:"Active", target:"", due:today(), createdAt:now(), updatedAt:now() };
+      const isNew = !id;
+      const body = `
+        <div class="grid g2">
+          <div class="field"><label>Project ID</label><input id="p-id" class="mono" value="${esc(p.id)}"></div>
+          <div class="field"><label>Status</label><select id="p-status">
+            <option ${p.status==="Active"?"selected":""}>Active</option>
+            <option ${p.status==="On hold"?"selected":""}>On hold</option>
+            <option ${p.status==="Completed"?"selected":""}>Completed</option>
+            <option ${p.status==="Cancelled"?"selected":""}>Cancelled</option>
+          </select></div>
+        </div>
+        <div class="field"><label>Name</label><input id="p-name" value="${esc(p.name)}"></div>
+        <div class="grid g2">
+          <div class="field"><label>Client</label><input id="p-client" value="${esc(p.client)}"></div>
+          <div class="field"><label>Owner</label><input id="p-owner" value="${esc(p.owner)}"></div>
+        </div>
+        <div class="grid g2">
+          <div class="field"><label>Stage</label><select id="p-stage">
+            <option ${p.stage==="Discovery"?"selected":""}>Discovery</option>
+            <option ${p.stage==="Hit-to-lead"?"selected":""}>Hit-to-lead</option>
+            <option ${p.stage==="Lead opt"?"selected":""}>Lead opt</option>
+            <option ${p.stage==="MedChem"?"selected":""}>MedChem</option>
+            <option ${p.stage==="Process"?"selected":""}>Process</option>
+            <option ${p.stage==="Scale-up"?"selected":""}>Scale-up</option>
+            <option ${p.stage==="Preclinical"?"selected":""}>Preclinical</option>
+            <option ${p.stage==="Clinical"?"selected":""}>Clinical</option>
+          </select></div>
+          <div class="field"><label>Target / Indication</label><input id="p-target" value="${esc(p.target)}"></div>
+        </div>
+        <div class="field"><label>Due date</label><input id="p-due" type="date" value="${esc(p.due)}"></div>`;
+      const foot = `<button class="btn" onclick="Modal.close()">Cancel</button><button class="btn primary" onclick="Projects.save('${p.id}', ${isNew})">💾 Save</button>`;
+      Modal.open(isNew?"New Project":"Edit Project", body, foot);
+    },
+    save(originalId, isNew){
+      const newId = safeId($("p-id").value);
+      if(!newId) return App.toast("Project ID is required","error");
+      if(newId !== originalId && Store.exists("projects", newId)) return App.toast("Project ID exists","error");
+      const patch = {
+        id: newId, name: $("p-name").value, client: $("p-client").value,
+        owner: $("p-owner").value, stage: $("p-stage").value, status: $("p-status").value,
+        target: $("p-target").value, due: $("p-due").value, updatedAt: now()
+      };
+      if(isNew){ patch.createdAt = now(); Store.add("projects", patch); App.addAudit(`Created project ${newId}`,"Project"); }
+      else {
+        if(newId !== originalId){
+          // Update all experiments that reference this project
+          Store.data.experiments.forEach(e => { if(e.projectId === originalId) e.projectId = newId; });
+          Store.remove("projects", originalId);
+        }
+        Store.update("projects", newId, patch);
+        if(newId !== originalId){
+          const arr = Store.data.projects; const i = arr.findIndex(x=>x.id===newId);
+          if(i>0){ const [it]=arr.splice(i,1); arr.unshift(it); Store.save(); }
+        }
+        App.addAudit(`Updated project ${newId}`,"Project");
+      }
+      App.toast("Project saved","success"); Modal.close(); App.render();
+    },
+    remove(id){
+      const ref = Store.data.experiments.filter(e=>e.projectId===id).length;
+      if(ref > 0) return App.toast(`Cannot delete: ${ref} experiment(s) reference this project`,"error");
+      Modal.confirm("Delete project?", `Delete <b>${esc(id)}</b>?`, () => {
+        Store.remove("projects", id);
+        App.addAudit(`Deleted project ${id}`,"Project");
+        App.render();
+        App.toast("Deleted","success");
+      });
+    }
+  };
+
+  /* ===================== Route plans ===================== */
+  const RoutePlans = {
+    editRoute(planId, routeId){
+      const plan = Store.data.routePlans.find(p=>p.id===planId);
+      if(!plan) return;
+      const route = plan.routes.find(r=>r.id===routeId);
+      if(!route) return;
+      const body = `
+        <div class="field"><label>Route label</label><input id="rt-label" value="${esc(route.label)}"></div>
+        <div class="field"><label>Source / engine note</label><input id="rt-source" value="${esc(route.source)}"></div>
+        <div class="field"><label>Note</label><textarea id="rt-note">${esc(route.note||"")}</textarea></div>
+        <h3 style="margin:10px 0 4px">Metrics</h3>
+        <div class="grid g2">
+          <div class="field"><label>Step count</label><input id="rt-steps" type="number" value="${route.metrics.stepCount}"></div>
+          <div class="field"><label>Estimated cost</label><input id="rt-cost" type="number" value="${route.metrics.estimatedCost}"></div>
+        </div>
+        <div class="grid g3">
+          <div class="field"><label>Commercial availability (0-1)</label><input id="rt-avail" type="number" step="0.01" min="0" max="1" value="${route.metrics.commercialAvailability}"></div>
+          <div class="field"><label>Confidence (0-1)</label><input id="rt-conf" type="number" step="0.01" min="0" max="1" value="${route.metrics.confidence}"></div>
+          <div class="field"><label>Complexity (0-1)</label><input id="rt-cplx" type="number" step="0.01" min="0" max="1" value="${route.metrics.complexity}"></div>
+        </div>
+        <h3 style="margin:10px 0 4px">Route tree (JSON)</h3>
+        <div class="field"><textarea id="rt-tree" class="mono" style="min-height:180px">${esc(JSON.stringify(route.tree, null, 2))}</textarea></div>`;
+      const foot = `<button class="btn" onclick="Modal.close()">Cancel</button><button class="btn primary" onclick="RoutePlans.save('${planId}','${routeId}')">💾 Save</button>`;
+      Modal.open("Edit Route", body, foot);
+    },
+    save(planId, routeId){
+      const plan = Store.data.routePlans.find(p=>p.id===planId);
+      const route = plan?.routes.find(r=>r.id===routeId);
+      if(!route) return;
+      route.label = $("rt-label").value;
+      route.source = $("rt-source").value;
+      route.note = $("rt-note").value;
+      route.metrics.stepCount = num($("rt-steps").value);
+      route.metrics.estimatedCost = num($("rt-cost").value);
+      route.metrics.commercialAvailability = num($("rt-avail").value);
+      route.metrics.confidence = num($("rt-conf").value);
+      route.metrics.complexity = num($("rt-cplx").value);
+      try {
+        route.tree = JSON.parse($("rt-tree").value);
+      } catch(e) { return App.toast("Invalid route tree JSON: "+e.message,"error"); }
+      route.score = Retrosynthesis.rank(route.metrics);
+      plan.updatedAt = now();
+      Store.save();
+      App.toast("Route saved","success");
+      Modal.close();
+      App.render();
+    },
+    remove(planId){
+      Modal.confirm("Delete route plan?", `Delete route plan <b>${esc(planId)}</b>?`, () => {
+        Store.remove("routePlans", planId);
+        App.addAudit(`Deleted route plan ${planId}`,"Retro");
+        App.render();
+        App.toast("Deleted","success");
+      });
+    }
+  };
+
+  /* ===================== Helpers ===================== */
+  function metric(label, value, cls){ return `<div class="stat"><small>${esc(label)}</small><b><span class="badge ${cls}">${esc(value)}</span></b></div>`; }
+  function mini(label, value){ return `<div><div class="muted">${esc(label)}</div><div class="score"><div style="width:${parseInt(value)||0}%"></div></div><b>${esc(value)}</b></div>`; }
+
+  /* ===================== App ===================== */
+  const App = window.App = {
+    active:"dashboard",
+    init(){
+      Store.load();
+      this.renderShell();
+      this.render();
+      $("themeBtn").onclick = () => { document.documentElement.dataset.theme = document.documentElement.dataset.theme === "dark" ? "light" : "dark"; };
+    },
+    renderShell(){
+      $("nav").innerHTML = NAV.map(([id,ico,name]) => `<button data-view="${id}"><span class="ico">${ico}</span>${name}</button>`).join("");
+      $("nav").onclick = (e) => { const b=e.target.closest("button[data-view]"); if(b) this.show(b.dataset.view); };
+      $("views").innerHTML = NAV.map(([id]) => `<div class="view" id="view-${id}"></div>`).join("");
+    },
+    show(id){ this.active=id; this.render(); },
+    render(){
+      document.querySelectorAll(".nav button").forEach(b => b.classList.toggle("active", b.dataset.view===this.active));
+      document.querySelectorAll(".view").forEach(v => v.classList.toggle("active", v.id===`view-${this.active}`));
+      const nav = NAV.find(n=>n[0]===this.active); $("page-title").textContent=nav[2]; $("page-sub").textContent=nav[3];
+      const map = {dashboard:this.renderDashboard,projects:this.renderProjects,retro:this.renderRetro,eln:this.renderELN,inventory:this.renderInventory,tools:this.renderTools,analytical:this.renderAnalytical,references:this.renderReferences,architecture:this.renderArchitecture};
+      map[this.active].call(this);
+    },
+    toast(msg, kind="info"){
+      const t=$("toast");
+      t.textContent=msg;
+      t.className = "toast " + (kind==="warn"?"warn":kind==="error"?"error":kind==="success"?"success":"");
+      t.style.display="block";
+      clearTimeout(this._tt);
+      this._tt=setTimeout(()=>t.style.display="none",2600);
+    },
+    addAudit(action, type="System"){
+      Store.data.audit ||= [];
+      Store.data.audit.unshift({at:new Date().toISOString(), type, action});
+      if(Store.data.audit.length > 200) Store.data.audit = Store.data.audit.slice(0,200);
+      Store.save();
+    },
+
+    /* ---------- Dashboard ---------- */
+    renderDashboard(){
+      $("view-dashboard").innerHTML = `<h2 class="section-title">R&D Operations Dashboard</h2><p class="section-sub">Project, ELN, route, inventory, and analytical status for chemistry teams.</p>
+      <div class="grid g4" id="dash-stats"></div>
+      <div class="grid g2" style="margin-top:14px">
+        <div class="card"><div class="card-h"><h3>Active Projects</h3><button class="btn small primary" onclick="Projects.openEditor()">＋ Add</button></div><div class="card-b">${this.projectTable(Store.data.projects.slice(0,4))}</div></div>
+        <div class="card"><div class="card-h"><h3>Inventory Alerts</h3><button class="btn small" onclick="App.show('inventory')">Open</button></div><div class="card-b">${this.inventoryTable(Store.data.inventory.filter(i=>Inventory.status(i)[1] !== "b-green"))}</div></div>
+        <div class="card"><div class="card-h"><h3>Recent Experiments</h3><button class="btn small primary" onclick="ELN.openEditor()">＋ New</button></div><div class="card-b">${this.experimentList(Store.data.experiments.slice(0,3))}</div></div>
+        <div class="card"><div class="card-h"><h3>Audit Trail</h3></div><div class="card-b"><div class="timeline">${(Store.data.audit||[]).slice(0,6).map(a=>`<div class="event"><b>${esc(a.type)}</b><div>${esc(a.action)}</div><small class="subtle">${new Date(a.at).toLocaleString()}</small></div>`).join("") || "<div class='muted'>No audit events yet.</div>"}</div></div></div>
+      </div>`;
+      this.renderDashboardStats();
+    },
+    renderDashboardStats(){
+      const low = Store.data.inventory.filter(i=>Inventory.status(i)[1]==="b-red").length;
+      const signed = Store.data.experiments.filter(e=>(e.signatures||[]).length).length;
+      const el = $("dash-stats"); if(!el) return;
+      el.innerHTML = metric("Projects", Store.data.projects.length, "b-blue") + metric("Experiments", Store.data.experiments.length, "b-green") + metric("Route plans", Store.data.routePlans.length, "b-amber") + metric("Low stock", low, low?"b-red":"b-green") + metric("Signed ELN", signed, "b-blue");
+    },
+
+    /* ---------- Projects ---------- */
+    renderProjects(){
+      $("view-projects").innerHTML = `<h2 class="section-title">Project Management</h2><p class="section-sub">Multi-user ready portfolio structure for medicinal chemistry, process chemistry, CRO delivery, and development labs. All fields and IDs are editable.</p>
+      <div class="card"><div class="card-h"><h3>Programs</h3><button class="btn small primary" onclick="Projects.openEditor()">＋ Add Project</button></div><div class="card-b">${this.projectTable(Store.data.projects)}</div></div>`;
+    },
+    projectTable(rows){
+      return `<table><thead><tr><th>ID</th><th>Name</th><th>Stage</th><th>Owner</th><th>Status</th><th>Due</th><th>Updated</th><th>Actions</th></tr></thead><tbody>${rows.map(p=>`<tr>
+        <td class="mono">${esc(p.id)}</td>
+        <td>${esc(p.name)}<div class="subtle">${esc(p.target||"")} ${p.client?`· ${esc(p.client)}`:""}</div></td>
+        <td>${esc(p.stage)}</td>
+        <td>${esc(p.owner)}</td>
+        <td><span class="badge ${p.status==="Active"?"b-green":p.status==="On hold"?"b-amber":p.status==="Completed"?"b-blue":"b-red"}">${esc(p.status)}</span></td>
+        <td>${esc(p.due)}</td>
+        <td class="subtle">${p.updatedAt?new Date(p.updatedAt).toLocaleDateString():""}</td>
+        <td><div class="toolbar"><button class="btn small warn" onclick="Projects.openEditor('${p.id}')">✎ Edit</button><button class="btn small danger" onclick="Projects.remove('${p.id}')">🗑</button></div></td>
+      </tr>`).join("") || `<tr><td colspan="8" class="muted">No projects.</td></tr>`}</tbody></table>`;
+    },
+
+    /* ---------- Retro ---------- */
+    renderRetro(){
+      const plans = Store.data.routePlans;
+      $("view-retro").innerHTML = `<h2 class="section-title">Route-Tree Retrosynthesis</h2><p class="section-sub">Best route by default, ranked alternatives, AiZynthFinder adapter, ASKCOS-ready adapter, and PDF route export. All routes are editable.</p>
+      <div class="grid g2"><div class="card"><div class="card-h"><h3>Target and Engine</h3></div><div class="card-b">
+        <div class="field"><label>Target name</label><input id="retro-name" value="Aspirin"></div>
+        <div class="field"><label>Target SMILES</label><input id="retro-smiles" class="mono" value="CC(=O)Oc1ccccc1C(=O)O"></div>
+        <div class="grid g2"><div class="field"><label>Engine</label><select id="retro-engine"><option>AiZynthFinder</option><option>ASKCOS</option><option selected>Demo route trees</option></select></div><div class="field"><label>Max steps</label><select id="retro-steps"><option>2</option><option selected>5</option><option>8</option></select></div></div>
+        <div class="field"><label>Routes to request</label><select id="retro-paths"><option>1</option><option selected>5</option><option>10</option></select></div>
+        <div class="field"><label>AiZynthFinder endpoint</label><input id="retro-aiz-url" value="/retro"></div>
+        <div class="field"><label>Future ASKCOS endpoint</label><input id="retro-askcos-url" placeholder="https://askcos.example/api/treebuilder"></div>
+        <button class="btn primary full" onclick="Retrosynthesis.plan()">Plan Retrosynthesis</button>
+      </div></div><div id="retro-output"></div></div>
+      <div class="card" style="margin-top:14px"><div class="card-h"><h3>Saved Route Plans</h3></div><div class="card-b">${plans.length ? `<table><thead><tr><th>ID</th><th>Target</th><th>Engine</th><th>Created</th><th>Actions</th></tr></thead><tbody>${plans.map(p=>`<tr><td class="mono">${esc(p.id)}</td><td>${esc(p.target.name)} <span class="subtle mono">${esc(p.target.smiles)}</span></td><td>${esc(p.engine)}</td><td class="subtle">${new Date(p.createdAt).toLocaleString()}</td><td><div class="toolbar"><button class="btn small" onclick="App.loadPlan('${p.id}')">View</button><button class="btn small danger" onclick="RoutePlans.remove('${p.id}')">🗑</button></div></td></tr>`).join("")}</tbody></table>` : `<div class="muted">No route plans saved yet.</div>`}</div></div>`;
+      window.Retrosynthesis = Retrosynthesis;
+      Retrosynthesis.render();
+    },
+    loadPlan(id){
+      const plan = Store.data.routePlans.find(p=>p.id===id);
+      if(plan) Retrosynthesis.render(plan);
+    },
+    editRoute(planId, routeId){ RoutePlans.editRoute(planId, routeId); },
+
+    /* ---------- ELN ---------- */
+    renderELN(){
+      $("view-eln").innerHTML = `<h2 class="section-title">Electronic Lab Notebook</h2><p class="section-sub">Full experiment editor: identity, reagents, stoichiometry, conditions, observations, TLC, workup, analytical, yield, safety, references, audit trail, and electronic signatures. Everything is editable.</p>
+      <div class="grid g2"><div class="card"><div class="card-h"><h3>Quick Create</h3></div><div class="card-b">
+        <div class="field"><label>Project</label><select id="eln-project">${Store.data.projects.map(p=>`<option value="${p.id}">${esc(p.id)} · ${esc(p.name)}</option>`).join("")}</select></div>
+        <div class="field"><label>Experiment title</label><input id="eln-title" value="Reaction screening"></div>
+        <div class="grid g2"><div class="field"><label>Scientist</label><input id="eln-scientist" value="Scientist"></div><div class="field"><label>Batch</label><input id="eln-batch" value="${ELN.nextBatch()}"></div></div>
+        <div class="grid g2"><div class="field"><label>Target</label><input id="eln-target" value="Aspirin"></div><div class="field"><label>Scale mmol</label><input id="eln-scale" type="number" value="10"></div></div>
+        <div class="field"><label>Target SMILES</label><input id="eln-smiles" class="mono" value="CC(=O)Oc1ccccc1C(=O)O"></div>
+        <button class="btn primary full" onclick="ELN.openEditor()">＋ New Experiment (full editor)</button>
+      </div></div><div class="card"><div class="card-h"><h3>Notebook Pages</h3><button class="btn small primary" onclick="ELN.openEditor()">＋ New</button></div><div class="card-b">${this.experimentList(Store.data.experiments)}</div></div></div>`;
+      window.ELN = ELN;
+    },
+    experimentList(rows){
+      return rows.map(e=>`<details open><summary><b class="mono">${esc(e.id)}</b> · ${esc(e.title)} <span class="badge ${e.status==="Complete"?"b-green":e.status==="In review"?"b-blue":e.status==="Cancelled"?"b-red":"b-amber"}">${esc(e.status)}</span> <span class="subtle">${esc(e.date||"")}</span></summary><div class="inside">
+        <div class="grid g3">${metric("Batch", e.batch, "b-blue")}${metric("Yield", ELN.calcYield(e)+"%", "b-green")}${metric("Signatures", (e.signatures||[]).length, "b-amber")}</div>
+        <h3>Reagent Table</h3>${ELN.reagentTable(e)}
+        <h3>Conditions</h3><p class="muted">${esc([e.conditions?.temperature, e.conditions?.solvent, e.conditions?.atmosphere, e.conditions?.time].filter(Boolean).join(" · ") || "—")}</p>
+        <h3>Observation Log</h3><div class="timeline">${(e.observations||[]).map(o=>`<div class="event">${esc(o)}</div>`).join("") || "<div class='muted'>No observations.</div>"}</div>
+        <h3>TLC Tracking</h3><table><thead><tr><th>Time</th><th>Solvent</th><th>RF SM</th><th>RF Product</th><th>Note</th></tr></thead><tbody>${(e.tlc||[]).map(t=>`<tr><td>${esc(t.time)}</td><td>${esc(t.solvent)}</td><td>${esc(t.rfSm)}</td><td>${esc(t.rfProduct)}</td><td>${esc(t.note)}</td></tr>`).join("") || `<tr><td colspan="5" class="muted">No TLC.</td></tr>`}</tbody></table>
+        <h3>Workup</h3><p>${esc(e.workup)||"<span class='muted'>—</span>"}</p>
+        <h3>Analytical</h3><table><tr><th>NMR</th><td>${esc(e.analytical?.nmr)||"<span class='muted'>—</span>"}</td></tr><tr><th>LCMS</th><td>${esc(e.analytical?.lcms)||"<span class='muted'>—</span>"}</td></tr><tr><th>HPLC</th><td>${esc(e.analytical?.hplc)||"<span class='muted'>—</span>"}</td></tr><tr><th>Impurities</th><td>${esc(e.analytical?.impurities)||"<span class='muted'>—</span>"}</td></tr></table>
+        ${(e.safetyHazards && e.safetyHazards.length) ? `<h3>Safety</h3><div>${e.safetyHazards.map(h=>`<span class="badge b-red">${esc(h)}</span>`).join(" ")}</div>`:""}
+        ${e.references ? `<h3>References</h3><p class="muted">${esc(e.references)}</p>`:""}
+        <h3>Audit Trail</h3>${(e.audit||[]).map(a=>`<div class="event">${esc(a.action)} <span class="subtle">${new Date(a.at).toLocaleString()}${a.by?` · ${esc(a.by)}`:""}</span></div>`).join("")||"<div class='muted'>No audit.</div>"}
+        ${(e.signatures||[]).length ? `<h3>Signatures</h3>${e.signatures.map(s=>`<div class="event"><b>${esc(s.by)}</b> · ${esc(s.role)} · ${esc(s.meaning)} <span class="subtle">${new Date(s.at).toLocaleString()}</span></div>`).join("")}`:""}
+        <div class="toolbar no-print" style="margin-top:10px">
+          <button class="btn small" onclick="App.printExperiment('${e.id}')">📄 PDF</button>
+          <button class="btn small warn" onclick="ELN.openEditor('${e.id}')">✎ Edit</button>
+          <button class="btn small success" onclick="ELN.sign('${e.id}')">✍ Sign</button>
+          <button class="btn small danger" onclick="ELN.remove('${e.id}')">🗑 Delete</button>
+        </div>
+      </div></details>`).join("") || "<div class='muted'>No experiments. Click <b>＋ New</b> to create one.</div>";
+    },
+    quickNewExperiment(){ this.show("eln"); ELN.openEditor(); },
+
+    /* ---------- Inventory ---------- */
+    renderInventory(){
+      $("view-inventory").innerHTML = `<h2 class="section-title">Inventory Management</h2><p class="section-sub">Chemical, reagent, solvent, consumable, vendor, catalog, CAS, quantity, expiry, barcode, and location tracking. All items fully editable.</p>
+      <div class="grid g2">
+        <div class="card"><div class="card-h"><h3>Quick Add</h3></div><div class="card-b">
+          <div class="grid g2"><div class="field"><label>Type</label><select id="inv-type"><option>Chemical</option><option>Reagent</option><option>Solvent</option><option>Consumable</option></select></div><div class="field"><label>Name</label><input id="inv-name"></div></div>
+          <div class="grid g3"><div class="field"><label>CAS</label><input id="inv-cas"></div><div class="field"><label>MW</label><input id="inv-mw"></div><div class="field"><label>Vendor</label><input id="inv-vendor"></div></div>
+          <div class="grid g3"><div class="field"><label>Catalog</label><input id="inv-catalog"></div><div class="field"><label>Location</label><input id="inv-location"></div><div class="field"><label>Expiry</label><input id="inv-expiry" type="date"></div></div>
+          <div class="grid g3"><div class="field"><label>Qty</label><input id="inv-qty" type="number"></div><div class="field"><label>Unit</label><input id="inv-unit" value="g"></div><div class="field"><label>Low stock threshold</label><input id="inv-min" type="number"></div></div>
+          <button class="btn primary full" onclick="Inventory.openEditor()">＋ Add Inventory Item (full editor)</button>
+        </div></div>
+        <div class="card"><div class="card-h"><h3>Vendor Management</h3><button class="btn small primary" onclick="Vendors.openEditor()">＋ Add Vendor</button></div><div class="card-b"><table><thead><tr><th>ID</th><th>Vendor</th><th>Quality</th><th>Lead</th><th>Contact</th><th>Actions</th></tr></thead><tbody>${Store.data.vendors.map(v=>`<tr><td class="mono">${esc(v.id)}</td><td><b>${esc(v.name)}</b></td><td>${esc(v.quality)}</td><td>${esc(v.lead)}</td><td>${esc(v.contact)}</td><td><div class="toolbar"><button class="btn small warn" onclick="Vendors.openEditor('${v.id}')">✎</button><button class="btn small danger" onclick="Vendors.remove('${v.id}')">🗑</button></div></td></tr>`).join("")||`<tr><td colspan="6" class="muted">No vendors.</td></tr>`}</tbody></table></div></div>
+      </div>
+      <div class="card" style="margin-top:14px"><div class="card-h"><h3>Stock Register</h3><div class="toolbar"><button class="btn small" onclick="App.exportCSV('inventory')">Export CSV</button><button class="btn small primary" onclick="Inventory.openEditor()">＋ Add</button></div></div><div class="card-b">${this.inventoryTable(Store.data.inventory)}</div></div>`;
+      window.Inventory = Inventory;
+    },
+    inventoryTable(rows){
+      return `<table><thead><tr><th>Status</th><th>ID</th><th>Type</th><th>Name</th><th>CAS</th><th>MW</th><th>Vendor/Catalog</th><th>Location</th><th>Qty</th><th>Expiry</th><th>Barcode</th><th>Actions</th></tr></thead><tbody>${rows.map(i=>{const st=Inventory.status(i);return `<tr>
+        <td><span class="badge ${st[1]}">${st[0]}</span></td>
+        <td class="mono">${esc(i.id)}</td>
+        <td>${esc(i.type)}</td>
+        <td>${esc(i.name)}</td>
+        <td>${esc(i.cas)}</td>
+        <td>${esc(i.mw)}</td>
+        <td>${esc(i.vendor)}<div class="subtle">${esc(i.catalog)}</div></td>
+        <td>${esc(i.location)}</td>
+        <td>${esc(i.qty)} ${esc(i.unit)}</td>
+        <td>${esc(i.expiry)}</td>
+        <td class="mono">${esc(i.barcode)}</td>
+        <td><div class="toolbar"><button class="btn small warn" onclick="Inventory.openEditor('${i.id}')">✎</button><button class="btn small danger" onclick="Inventory.remove('${i.id}')">🗑</button></div></td>
+      </tr>`}).join("") || `<tr><td colspan="12" class="muted">No inventory.</td></tr>`}</tbody></table>`;
+    },
+
+    /* ---------- Tools ---------- */
+    renderTools(){
+      $("view-tools").innerHTML = `<h2 class="section-title">Chemistry AI Tools</h2><p class="section-sub">RDKit-ready hooks, reaction prediction, reagent recommendation, NMR prediction, molecular properties, substructure/similarity search, and reaction database. All editable.</p>
+      <div class="grid g2"><div class="card"><div class="card-h"><h3>Reaction Prediction</h3></div><div class="card-b"><div class="field"><label>Reactants, one per line</label><textarea id="rxn-reactants">O=C(O)c1ccccc1O\nCC(=O)OC(C)=O</textarea></div><div class="field"><label>Reaction type</label><input id="rxn-type" value="acetylation"></div><button class="btn primary" onclick="App.runReactionPrediction()">Predict</button><div id="rxn-out" style="margin-top:12px"></div></div></div>
+      <div class="card"><div class="card-h"><h3>Molecular Properties and Search</h3></div><div class="card-b"><div class="field"><label>SMILES</label><input id="tool-smiles" class="mono" value="CC(=O)Oc1ccccc1C(=O)O"></div><div class="toolbar"><button class="btn primary" onclick="App.runProperties()">Properties</button><button class="btn" onclick="App.runSearch('Substructure')">Substructure</button><button class="btn" onclick="App.runSearch('Similarity')">Similarity</button></div><div id="prop-out" style="margin-top:12px"></div></div></div>
+      <div class="card"><div class="card-h"><h3>Reagent Recommendation</h3></div><div class="card-b"><div class="field"><label>Transformation goal</label><input id="reagent-goal" value="amide coupling"></div><button class="btn primary" onclick="App.recommendReagents()">Recommend</button><div id="reagent-out" style="margin-top:12px"></div></div></div>
+      <div class="card"><div class="card-h"><h3>NMR Prediction Hook</h3></div><div class="card-b"><p class="muted">Connect a backend predictor such as RDKit/nmrshiftdb/Open-source ML. The UI contract is ready.</p><button class="btn" onclick="App.toast('NMR backend hook ready')">Run NMR Hook</button></div></div></div>
+      <div class="card" style="margin-top:14px"><div class="card-h"><h3>Reaction Database <button class="btn small primary" onclick="Reactions.openEditor()">＋ Add Reaction</button></h3></div><div class="card-b"><table><thead><tr><th>ID</th><th>Name</th><th>Category</th><th>Class</th><th>Conditions</th><th>Confidence</th><th>Actions</th></tr></thead><tbody>${Store.data.reactions.map(r=>`<tr><td class="mono">${esc(r.id)}</td><td>${esc(r.name)}</td><td>${esc(r.category||"")}</td><td>${esc(r.class)}</td><td>${esc(r.conditions)}</td><td>${Math.round(r.confidence*100)}%</td><td><div class="toolbar"><button class="btn small warn" onclick="Reactions.openEditor('${r.id}')">✎</button><button class="btn small danger" onclick="Reactions.remove('${r.id}')">🗑</button></div></td></tr>`).join("")||`<tr><td colspan="7" class="muted">No reactions.</td></tr>`}</tbody></table></div></div>`;
+    },
+    runReactionPrediction(){ const out=Chemistry.reactionPrediction($("rxn-reactants").value.split(/\n+/).filter(Boolean), $("rxn-type").value); $("rxn-out").innerHTML=`<div class="node"><b>${esc(out.name)}</b><div class="mono">${esc(out.smiles)}</div><span class="badge b-blue">${out.confidence}% confidence</span><span class="badge">${esc(out.mechanism)}</span></div>`; },
+    runProperties(){ const p=Chemistry.props($("tool-smiles").value); $("prop-out").innerHTML=`<table><tr><th>MW</th><td>${p.mw}</td></tr><tr><th>cLogP</th><td>${p.logp}</td></tr><tr><th>TPSA</th><td>${p.tpsa}</td></tr><tr><th>HBD/HBA</th><td>${p.hbd}/${p.hba}</td></tr><tr><th>Rotatable bonds</th><td>${p.rotb}</td></tr></table>`; },
+    runSearch(type){ $("prop-out").innerHTML=`<div class="badge b-blue">${type} search prepared for RDKit/PostgreSQL cartridge backend.</div>`; },
+    recommendReagents(){ $("reagent-out").innerHTML = Chemistry.reagentRecommendation($("reagent-goal").value).map(x=>`<span class="badge b-green">${esc(x)}</span>`).join(" "); },
+
+    /* ---------- Analytical ---------- */
+    renderAnalytical(){
+      $("view-analytical").innerHTML = `<h2 class="section-title">Analytical Data</h2><p class="section-sub">NMR, LCMS, HPLC, impurity, yield, and batch analytical summaries. Edit experiments in the ELN section to update these records.</p><div class="card"><div class="card-h"><h3>Analytical Register</h3></div><div class="card-b"><table><thead><tr><th>Batch</th><th>NMR</th><th>LCMS</th><th>HPLC</th><th>Impurities</th><th>Yield</th><th>Purity</th></tr></thead><tbody>${Store.data.experiments.map(e=>`<tr><td class="mono">${esc(e.batch)}</td><td>${esc(e.analytical?.nmr)||"—"}</td><td>${esc(e.analytical?.lcms)||"—"}</td><td>${esc(e.analytical?.hplc)||"—"}</td><td>${esc(e.analytical?.impurities)||"—"}</td><td>${ELN.calcYield(e)}%</td><td>${esc(e.yield?.purity||"—")}%</td></tr>`).join("")||`<tr><td colspan="7" class="muted">No analytical data.</td></tr>`}</tbody></table></div></div>`;
+    },
+
+    /* ---------- References ---------- */
+    renderReferences(){
+      $("view-references").innerHTML = `<h2 class="section-title">Literature and Reaction Database</h2><p class="section-sub">Reference capture and internal reaction knowledge base for route selection and process decisions. All references editable.</p>
+      <div class="grid g2"><div class="card"><div class="card-h"><h3>Literature References <button class="btn small primary" onclick="Refs.openEditor()">＋ Add</button></h3></div><div class="card-b"><table><thead><tr><th>ID</th><th>Title</th><th>Source</th><th>Year</th><th>Tags</th><th>DOI</th><th>Actions</th></tr></thead><tbody>${Store.data.references.map(r=>`<tr><td class="mono">${esc(r.id)}</td><td>${esc(r.title)}</td><td>${esc(r.source)}</td><td>${esc(r.year)}</td><td>${esc(r.tags)}</td><td class="mono">${esc(r.doi||"")}</td><td><div class="toolbar"><button class="btn small warn" onclick="Refs.openEditor('${r.id}')">✎</button><button class="btn small danger" onclick="Refs.remove('${r.id}')">🗑</button></div></td></tr>`).join("")||`<tr><td colspan="7" class="muted">No references.</td></tr>`}</tbody></table></div></div>
+      <div class="card"><div class="card-h"><h3>Reaction Database <button class="btn small primary" onclick="Reactions.openEditor()">＋ Add</button></h3></div><div class="card-b"><table><thead><tr><th>ID</th><th>Name</th><th>Category</th><th>Class</th><th>Conditions</th><th>Confidence</th><th>Actions</th></tr></thead><tbody>${Store.data.reactions.map(r=>`<tr><td class="mono">${esc(r.id)}</td><td>${esc(r.name)}</td><td>${esc(r.category||"")}</td><td>${esc(r.class)}</td><td>${esc(r.conditions)}</td><td>${Math.round(r.confidence*100)}%</td><td><div class="toolbar"><button class="btn small warn" onclick="Reactions.openEditor('${r.id}')">✎</button><button class="btn small danger" onclick="Reactions.remove('${r.id}')">🗑</button></div></td></tr>`).join("")||`<tr><td colspan="7" class="muted">No reactions.</td></tr>`}</tbody></table></div></div></div>`;
+    },
+
+    /* ---------- Architecture ---------- */
+    renderArchitecture(){
+      $("view-architecture").innerHTML = `<h2 class="section-title">Data Architecture and Migration Plan</h2><p class="section-sub">The app is a single-file prototype with modular boundaries that map cleanly to services and relational tables. All entities support full CRUD via modal editors.</p>
+      <div class="grid g2"><div class="card"><div class="card-h"><h3>Logical Modules</h3></div><div class="card-b"><ul><li>UI components: view renderers, tables, cards, route-tree renderer, modal editor</li><li>Business logic: ELN, Inventory, Projects, Vendors, Reactions, References, RoutePlans, Audit, Exports</li><li>Chemistry logic: Retrosynthesis adapters, RDKit hooks, properties, reaction tools, stoichiometry</li><li>Storage: Store module over localStorage, replaceable by API client. All entities have add/update/remove.</li></ul></div></div>
+      <div class="card"><div class="card-h"><h3>Relational Tables</h3></div><div class="card-b"><code class="mono">projects, experiments, experiment_reagents, experiment_observations, experiment_tlc, analytical_results, safety_hazards, signatures, audit_events, inventory_items, vendors, route_plans, route_nodes, reactions, references, users, roles</code></div></div>
+      <div class="card"><div class="card-h"><h3>Backend Migration</h3></div><div class="card-b"><ol><li>Move Store operations to REST/GraphQL API.</li><li>Use SQLite for single-lab deployment.</li><li>Promote to PostgreSQL with RDKit cartridge for substructure/similarity.</li><li>Add Celery/RQ workers for AiZynthFinder, ASKCOS, NMR, LCMS jobs.</li><li>Add SSO, RBAC, immutable audit logs, and Part 11 signature controls.</li></ol></div></div>
+      <div class="card"><div class="card-h"><h3>Controls</h3></div><div class="card-b"><button class="btn danger" onclick="App.resetData()">Restore demo data</button> <button class="btn" onclick="App.exportBackup()">Export backup JSON</button> <button class="btn warn" onclick="App.wipeAll()">Wipe all data</button></div></div></div>`;
+    },
+    resetData(){ Modal.confirm("Restore demo data?", "This will replace all current data with the demo seed. Continue?", () => Store.reset()); },
+    wipeAll(){ Modal.confirm("Wipe all data?", "All projects, experiments, inventory, and route plans will be deleted. This cannot be undone.", () => { Store.data = { meta: {version:VERSION, createdAt:now()}, projects:[], inventory:[], vendors:[], experiments:[], routePlans:[], reactions:[], references:[], audit:[] }; Store.save(); App.render(); App.toast("All data wiped","success"); }); },
+
+    /* ---------- Print / Export ---------- */
+    printRoute(planId, routeId){
+      const plan = Store.data.routePlans.find(p=>p.id===planId); const route = plan?.routes.find(r=>r.id===routeId); if(!route) return;
+      this.printHTML(`Route Report - ${plan.target.name}`, `<h1>Route Report: ${esc(plan.target.name)}</h1>${Retrosynthesis.routeHtml(route)}`);
+    },
+    printExperiment(id){
+      const exp = Store.data.experiments.find(e=>e.id===id); if(!exp) return;
+      this.printHTML(`ELN ${exp.id}`, `<h1>${esc(exp.id)} ${esc(exp.title)}</h1>${this.experimentList([exp])}`);
+    },
+    printHTML(title, body){
+      const w = window.open("", "_blank"); w.document.write(`<!doctype html><title>${esc(title)}</title><style>body{font-family:Arial;color:#111}table{width:100%;border-collapse:collapse}td,th{border:1px solid #ddd;padding:6px}.node{border:1px solid #999;padding:8px;margin:6px}.badge{border:1px solid #999;padding:2px 6px;border-radius:12px}.no-print{display:none}</style>${body}`); w.document.close(); w.focus(); setTimeout(()=>w.print(),250);
+    },
+    exportBackup(){ const blob = new Blob([JSON.stringify(Store.data,null,2)],{type:"application/json"}); this.download(blob,`chemai-rd-backup-${today()}.json`); },
+    exportCSV(kind){
+      const rows=Store.data[kind]||[];
+      if(!rows.length) return App.toast("Nothing to export","warn");
+      const keys=[...new Set(rows.flatMap(Object.keys))];
+      const csv=[keys.join(","),...rows.map(r=>keys.map(k=>`"${String(r[k]??"").replaceAll('"','""')}"`).join(","))].join("\n");
+      this.download(new Blob([csv],{type:"text/csv"}),`chemai-${kind}.csv`);
+    },
+    download(blob,name){ const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=name; a.click(); URL.revokeObjectURL(a.href); }
+  };
+
+  // Expose modules globally
+  window.Store = Store;
+  window.Modal = Modal;
+  window.Inventory = Inventory;
+  window.ELN = ELN;
+  window.Retrosynthesis = Retrosynthesis;
+  window.Projects = Projects;
+  window.Vendors = Vendors;
+  window.Reactions = Reactions;
+  window.Refs = Refs;
+  window.RoutePlans = RoutePlans;
+  window.Chemistry = Chemistry;
+
+  App.init();
+})();
+</script>
+</body>
+</html>
